@@ -11,7 +11,7 @@
 <meta name="format-detection" content="telephone=no">
 <link rel="icon" type="image/png" href="data:image/png;base64,__ICON192__">
 <link rel="apple-touch-icon" href="data:image/png;base64,__APPLE180__">
-<title>党建·工会知识练兵</title>
+<title>党群技能竞赛练习</title>
 <style>
 :root{
   --bg:#e9f5ec; --bg2:#f6fcf7; --card:#ffffff; --line:#dcece2;
@@ -37,6 +37,7 @@ body{
 .app{max-width:560px;margin:0 auto;min-height:100vh;position:relative}
 .screen{display:none;padding:20px 16px calc(28px + env(safe-area-inset-bottom))}
 #s-quiz{padding-bottom:104px}
+#s-quiz,#s-book,#s-hist{padding-top:0}
 .screen.on{display:block;animation:fade .22s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
@@ -52,7 +53,7 @@ body{
 .ih-note{margin-top:8px;font-size:12px;color:var(--ink3)}
 
 /* ---------- 首页 ---------- */
-.hero{padding:18px 4px 10px}
+.hero{padding:18px 4px 10px;text-align:center}
 .hero .kicker{font-size:13px;letter-spacing:.14em;color:var(--brand);font-weight:600}
 .hero h1{margin:8px 0 6px;font-size:25px;line-height:1.32;letter-spacing:-.2px}
 .hero p{margin:0;color:var(--ink2);font-size:14px}
@@ -96,7 +97,7 @@ body{
 /* ---------- 顶栏 ---------- */
 .topbar{
   position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;
-  padding:12px 14px 10px;background:rgba(244,252,246,.94);
+  padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:rgba(244,252,246,.94);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   border-bottom:1px solid #e2f0e7;
 }
@@ -207,6 +208,25 @@ body{
 .wq .ans{font-size:13px;color:var(--ok);margin-top:7px}
 .empty{text-align:center;color:var(--ink3);font-size:14px;padding:26px 0}
 
+/* ---------- 题型直达与作答回顾 ---------- */
+.typechips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.tchip{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center;font-family:inherit;cursor:pointer;box-shadow:var(--shadow);transition:transform .12s}
+.tchip:active{transform:scale(.97)}
+.tchip b{display:block;font-size:14px;color:var(--ink)}
+.tchip span{display:block;font-size:11.5px;color:var(--ink3);margin-top:3px}
+.tchip.empty{opacity:.5}
+.mini-stats .tap{cursor:pointer}
+.mini-stats .tap b{color:var(--brand-d)}
+.hist-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.hist-item .h-top{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.hdot{width:18px;height:18px;flex:0 0 18px;border-radius:50%;font-size:11px;color:#fff;display:flex;align-items:center;justify-content:center}
+.hdot.ok{background:var(--ok)}
+.hdot.bad{background:var(--bad)}
+.hist-item .h-tags{font-size:11.5px;color:var(--ink3)}
+.hist-item .q{font-size:15px;line-height:1.7}
+.hist-item .my{font-size:13px;color:var(--ink2);margin-top:6px;word-break:break-all}
+.hist-item .a{font-size:13.5px;color:var(--ok);margin-top:4px}
+
 /* ---------- 错题本 ---------- */
 .wb-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
 .wb-item .q{font-size:15px;line-height:1.7}
@@ -227,7 +247,7 @@ body{
 <section class="screen on" id="s-home">
   <div class="hero">
     <div class="kicker">党务 · 工会 题库</div>
-    <h1>党建工会知识练兵</h1>
+    <h1>党群技能竞赛练习</h1>
     <p>把题库刷一遍，错题自动回炉，直到做对为止</p>
   </div>
 
@@ -258,7 +278,7 @@ body{
     </div>
     <div class="bar"><i id="progBar"></i></div>
     <div class="mini-stats">
-      <div><b id="statAnswered">0</b><span>累计作答</span></div>
+      <div class="tap" id="statAnsBox"><b id="statAnswered">0</b><span>累计作答 ›</span></div>
       <div><b id="statRate">—</b><span>累计正确率</span></div>
       <div><b id="statCycle">1</b><span>本轮轮次</span></div>
     </div>
@@ -271,6 +291,7 @@ body{
       <button data-scope="dw">党务知识</button>
       <button data-scope="gh">工会知识</button>
     </div>
+    <div class="typechips" id="typeChips"></div>
   </div>
 
   <div class="block">
@@ -352,6 +373,21 @@ body{
   </div>
 </section>
 
+<!-- ============ 累计作答回顾 ============ -->
+<section class="screen" id="s-hist">
+  <div class="topbar">
+    <button class="icon-btn" id="btnHistBack">&larr;</button>
+    <div class="tb-title"><b>累计作答</b><span id="histCount">共 0 题</span></div>
+    <div style="width:36px;flex:0 0 36px"></div>
+  </div>
+  <div class="seg small" id="histSeg" style="margin:16px 0 12px">
+    <button data-f="all" class="on">全部</button>
+    <button data-f="wrong">答错</button>
+    <button data-f="ok">答对</button>
+  </div>
+  <div id="histList"></div>
+</section>
+
 </div>
 
 <div class="sheet-mask" id="mask">
@@ -382,6 +418,7 @@ var BY_ID = {}; DATA.forEach(function(q){ BY_ID[q.id] = q; });
 var KEY = 'djjh_quiz_v1';
 var LETTER = 'ABCDEFGH';
 var TYPE_NAME = {single:'单选题', multi:'多选题', judge:'判断题', fill:'填空题', essay:'简答题'};
+var TYPE_ORDER = ['single','multi','judge','fill','essay'];
 var SRC_NAME = {dw:'党务', gh:'工会'};
 var scope = 'all', countN = 50;
 var state, session, qStart = 0, timerId = null, curPick = [], answered = false;
@@ -389,15 +426,30 @@ var state, session, qStart = 0, timerId = null, curPick = [], answered = false;
 /* ---------- 状态 ---------- */
 function load(){
   try{ var raw = localStorage.getItem(KEY); if(raw) return JSON.parse(raw); }catch(e){}
-  return {v:1, scopes:{}, stats:{answered:0, correct:0}, session:null};
+  return {v:1, scopes:{}, stats:{answered:0, correct:0}, history:{}, session:null};
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
-function idsFor(s){
-  return DATA.filter(function(q){ return s === 'all' || q.src === s; }).map(function(q){ return q.id; });
+function idsFor(s, type){
+  return DATA.filter(function(q){
+    if(s !== 'all' && q.src !== s) return false;
+    if(type && q.type !== type) return false;
+    return true;
+  }).map(function(q){ return q.id; });
 }
 function S(s){
-  if(!state.scopes[s]) state.scopes[s] = {pool: shuffle(idsFor(s)), wrong:[], cycle:1};
-  return state.scopes[s];
+  if(!state.scopes[s]){
+    state.scopes[s] = {done:{}, wrong:[], cycle:1};
+    return state.scopes[s];
+  }
+  var st = state.scopes[s];
+  if(!st.done){ // 旧数据迁移：旧 pool 里剩下的视为未做
+    st.done = {};
+    var poolSet = {};
+    (st.pool || []).forEach(function(id){ poolSet[id] = 1; });
+    idsFor(s).forEach(function(id){ if(!poolSet[id]) st.done[id] = 1; });
+    delete st.pool;
+  }
+  return st;
 }
 function shuffle(a){
   a = a.slice();
@@ -429,10 +481,10 @@ function sameSet(a, b){
 }
 
 /* ---------- 组卷 ---------- */
-function buildQueue(s, n, onlyWrong){
+function buildQueue(s, n, onlyWrong, type){
   var st = S(s);
-  var pool = st.pool.slice();
-  var wrongPool = st.wrong.filter(function(id){ return BY_ID[id]; });
+  var allIds = idsFor(s, type);
+  var wrongPool = st.wrong.filter(function(id){ return BY_ID[id] && (!type || BY_ID[id].type === type); });
   var picked = [], used = {};
   var wrongPick = [];
   if(onlyWrong){
@@ -444,34 +496,37 @@ function buildQueue(s, n, onlyWrong){
   wrongPick.forEach(function(id){ used[id] = 1; });
   var need = n - wrongPick.length;
   // 先取本轮未练过的题
-  for(var i = 0; i < pool.length && picked.length < need; i++){
-    if(!used[pool[i]]){ picked.push(pool[i]); used[pool[i]] = 1; }
+  var remaining = allIds.filter(function(id){ return !st.done[id] && !used[id]; });
+  for(var i = 0; i < remaining.length && picked.length < need; i++){
+    picked.push(remaining[i]); used[remaining[i]] = 1;
   }
-  // 不够则开启新一轮（全库重新洗牌，避开已选及错题）
-  if(picked.length < need){
-    var fresh = shuffle(idsFor(s)).filter(function(id){ return !used[id]; });
+  // 不够则开启新一轮（该范围全库重新洗牌，避开已选及错题）
+  if(picked.length < need && !onlyWrong){
     st.cycle++;
-    st.pool = fresh.slice();
+    st.done = {};
+    var fresh = shuffle(allIds).filter(function(id){ return !used[id]; });
     for(var k = 0; k < fresh.length && picked.length < need; k++){
       picked.push(fresh[k]); used[fresh[k]] = 1;
     }
   }
-  // 更新本轮池子：把本次要出的新题移出
-  st.pool = st.pool.filter(function(id){ return !picked.some(function(p){ return p === id; }); });
   // 错题均匀插入
   var queue = picked.slice();
-  var step = queue.length / (wrongPick.length + 1);
-  wrongPick.forEach(function(id, idx){
-    var pos = Math.min(queue.length, Math.round(step * (idx + 1)) + idx);
-    queue.splice(pos, 0, id);
-  });
+  if(wrongPick.length){
+    var step = queue.length / (wrongPick.length + 1);
+    wrongPick.forEach(function(id, idx){
+      var pos = Math.min(queue.length, Math.round(step * (idx + 1)) + idx);
+      queue.splice(pos, 0, id);
+    });
+  }
   return queue;
 }
 
-function startSession(s, n, onlyWrong){
-  var ids = buildQueue(s, n, onlyWrong);
+var lastType = null;
+function startSession(s, n, onlyWrong, type){
+  var ids = buildQueue(s, n, onlyWrong, type);
   if(!ids.length){ toast('没有可练习的题目'); return; }
-  session = {scope:s, ids:ids, i:0, answers:{}, rein:{}, startAt:Date.now(), onlyWrong:!!onlyWrong};
+  lastType = type || null;
+  session = {scope:s, type:type || null, ids:ids, i:0, answers:{}, rein:{}, startAt:Date.now(), onlyWrong:!!onlyWrong};
   state.session = session;
   save();
   show('s-quiz');
@@ -485,8 +540,9 @@ function renderQ(){
   answered = false; curPick = [];
   var q = current();
   if(!q){ finish(); return; }
+  var scopeName = session.scope === 'all' ? '全部题库' : SRC_NAME[session.scope] + '题库';
   document.getElementById('tbScope').textContent = session.onlyWrong ? '错题重练' :
-      (session.scope === 'all' ? '全部题库' : SRC_NAME[session.scope] + '题库');
+      (session.type ? scopeName.slice(0, 2) + ' · ' + TYPE_NAME[session.type] : scopeName);
   document.getElementById('tbProg').textContent = '第 ' + (session.i + 1) + ' 题 / 共 ' + session.ids.length + ' 题';
   document.getElementById('qBar').style.width = ((session.i) / session.ids.length * 100) + '%';
 
@@ -604,8 +660,9 @@ function recordResult(q, ok, ms, pick){
   session.answers[q.id] = {pick:pick, ok:ok, ms:ms};
   state.stats.answered++;
   if(ok) state.stats.correct++;
+  state.history[q.id] = {pick:pick || [], ok:ok, ms:ms, at:Date.now()};
   var st = S(session.scope);
-  st.pool = st.pool.filter(function(id){ return id !== q.id; });
+  st.done[q.id] = 1;
   if(ok){
     st.wrong = st.wrong.filter(function(id){ return id !== q.id; });
   }else{
@@ -724,16 +781,7 @@ function selfRate(ok, ms){
   if(answered) return;
   answered = true;
   var q = current();
-  session.answers[q.id] = {pick:[], ok:ok, ms:ms};
-  state.stats.answered++;
-  if(ok) state.stats.correct++;
-  var st = S(session.scope);
-  st.pool = st.pool.filter(function(id){ return id !== q.id; });
-  if(ok){ st.wrong = st.wrong.filter(function(id){ return id !== q.id; }); }
-  else{
-    if(st.wrong.indexOf(q.id) < 0) st.wrong.push(q.id);
-    if(!session.rein[q.id]){ session.rein[q.id] = 1; session.ids.push(q.id); }
-  }
+  recordResult(q, ok, ms, [ok ? '自评：记住了' : '自评：没记住']);
   document.getElementById('qFeed').insertAdjacentHTML('afterbegin',
     '<div class="feedback ' + (ok ? 'good' : 'bad') + '" style="margin-bottom:12px">' +
     '<div class="fb-head"><span class="dot">' + (ok ? '✓' : '✕') + '</span>' + (ok ? '已掌握' : '这道题会再出现一次') + '</div>' +
@@ -788,7 +836,7 @@ function finish(){
 function renderHome(){
   var st = S(scope);
   var all = idsFor(scope);
-  var done = all.length - st.pool.length;
+  var done = all.filter(function(id){ return st.done[id]; }).length;
   document.getElementById('doneNum').textContent = Math.max(0, done);
   document.getElementById('totalNum').textContent = all.length;
   document.getElementById('scopeLabel').textContent =
@@ -804,6 +852,15 @@ function renderHome(){
   var canResume = state.session && state.session.i < state.session.ids.length;
   document.getElementById('btnResume').style.display = canResume ? 'flex' : 'none';
   if(canResume) document.getElementById('btnResume').textContent = '继续上次（第 ' + (state.session.i + 1) + ' 题）';
+  // 题型直达
+  var types = TYPE_ORDER.filter(function(t){ return idsFor(scope, t).length > 0; });
+  var chips = types.map(function(t){
+    var tot = idsFor(scope, t).length;
+    var rem = idsFor(scope, t).filter(function(id){ return !st.done[id]; }).length;
+    return '<button class="tchip' + (rem ? '' : ' empty') + '" data-t="' + t + '"><b>' + TYPE_NAME[t] +
+           '</b><span>剩余 ' + rem + '/' + tot + '</span></button>';
+  }).join('');
+  document.getElementById('typeChips').innerHTML = chips;
 }
 
 /* ---------- 错题本 ---------- */
@@ -826,6 +883,41 @@ function renderBook(){
   }).join('');
 }
 
+/* ---------- 累计作答回顾 ---------- */
+var histFilter = 'all';
+function renderHist(){
+  var ids = Object.keys(state.history).filter(function(id){ return BY_ID[id]; });
+  if(histFilter === 'wrong') ids = ids.filter(function(id){ return !state.history[id].ok; });
+  if(histFilter === 'ok') ids = ids.filter(function(id){ return state.history[id].ok; });
+  ids.sort(function(a, b){ return (state.history[b].at || 0) - (state.history[a].at || 0); });
+  document.getElementById('histCount').textContent = '共 ' + ids.length + ' 题';
+  var box = document.getElementById('histList');
+  if(!ids.length){
+    box.innerHTML = '<div class="empty">还没有作答记录</div>';
+    return;
+  }
+  box.innerHTML = ids.map(function(id){
+    var q = BY_ID[id], h = state.history[id];
+    var mine;
+    if(q.type === 'single' || q.type === 'multi' || q.type === 'judge'){
+      mine = (h.pick || []).map(function(i){
+        return LETTER.charAt(i) + '. ' + (q.opts[i] || '');
+      }).join('；');
+    }else{
+      mine = (h.pick && h.pick.length) ? h.pick.join('；') : '（自评）';
+    }
+    var d = h.at ? new Date(h.at) : null;
+    var when = d ? (' · ' + (d.getMonth() + 1) + '-' + d.getDate() + ' ' +
+      ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2)) : '';
+    return '<div class="hist-item"><div class="h-top">' +
+      '<span class="hdot ' + (h.ok ? 'ok' : 'bad') + '">' + (h.ok ? '✓' : '✕') + '</span>' +
+      '<span class="h-tags">' + TYPE_NAME[q.type] + ' · ' + SRC_NAME[q.src] + '题库' + when + '</span></div>' +
+      '<div class="q">' + stemHTML(q.stem) + '</div>' +
+      '<div class="my">你的答案：' + esc(mine) + '</div>' +
+      '<div class="a">正确答案：' + esc(ansTextOf(q)) + '</div></div>';
+  }).join('');
+}
+
 /* ---------- 通用 ---------- */
 function show(id){
   Array.prototype.forEach.call(document.querySelectorAll('.screen'), function(s){ s.classList.remove('on'); });
@@ -834,6 +926,7 @@ function show(id){
   document.getElementById('qFooter').style.display = 'none';
   if(id === 's-home') renderHome();
   if(id === 's-book') renderBook();
+  if(id === 's-hist') renderHist();
 }
 function toast(msg){
   var m = document.getElementById('mask');
@@ -858,6 +951,18 @@ document.getElementById('countSeg').addEventListener('click', function(e){
   Array.prototype.forEach.call(this.children, function(x){ x.classList.toggle('on', x === b); });
 });
 document.getElementById('btnStart').onclick = function(){ startSession(scope, countN, false); };
+document.getElementById('typeChips').addEventListener('click', function(e){
+  var b = e.target.closest('.tchip'); if(!b) return;
+  startSession(scope, countN, false, b.dataset.t);
+});
+document.getElementById('statAnsBox').onclick = function(){ show('s-hist'); };
+document.getElementById('btnHistBack').onclick = function(){ show('s-home'); };
+document.getElementById('histSeg').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  histFilter = b.dataset.f;
+  Array.prototype.forEach.call(this.children, function(x){ x.classList.toggle('on', x === b); });
+  renderHist();
+});
 document.getElementById('btnWrong').onclick = function(){ startSession(scope, Math.min(50, Math.max(1, S(scope).wrong.length)), true); };
 document.getElementById('btnBook').onclick = function(){ show('s-book'); };
 document.getElementById('btnBookBack').onclick = function(){ show('s-home'); };
@@ -874,7 +979,7 @@ document.getElementById('btnQuit').onclick = function(){
   save();
   show('s-home');
 };
-document.getElementById('btnAgain').onclick = function(){ startSession(scope, countN, false); };
+document.getElementById('btnAgain').onclick = function(){ startSession(scope, countN, false, lastType); };
 document.getElementById('btnHome').onclick = function(){ show('s-home'); };
 document.getElementById('btnReset').onclick = function(){
   var m = document.getElementById('mask');
@@ -885,7 +990,7 @@ document.getElementById('btnReset').onclick = function(){
   m.classList.add('on');
   document.getElementById('shNo').onclick = function(){ m.classList.remove('on'); };
   document.getElementById('shYes').onclick = function(){
-    state = {v:1, scopes:{}, stats:{answered:0, correct:0}, session:null};
+    state = {v:1, scopes:{}, stats:{answered:0, correct:0}, history:{}, session:null};
     save(); m.classList.remove('on'); show('s-home');
   };
 };
