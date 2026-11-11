@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#eaf6ee">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="练兵答题">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<link rel="icon" type="image/png" href="data:image/png;base64,__ICON192__">
+<link rel="apple-touch-icon" href="data:image/png;base64,__APPLE180__">
+<title>党建·工会知识练兵</title>
+<style>
+:root{
+  --bg:#e9f5ec; --bg2:#f6fcf7; --card:#ffffff; --line:#dcece2;
+  --ink:#1d2f26; --ink2:#5d7267; --ink3:#8ba294;
+  --brand:#3f9b62; --brand-d:#2d7a4a; --brand-l:#e6f5ea; --brand-ll:#f2fbf5;
+  --ok:#2f8c58; --ok-bg:#e9f8ee; --ok-line:#b6e2c4;
+  --bad:#c5524a; --bad-bg:#fdeeec; --bad-line:#f2c6c1;
+  --amber:#b8823a; --amber-bg:#fdf4e4;
+  --shadow:0 8px 24px rgba(47,110,72,.08);
+  --r:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{
+  touch-action:manipulation;
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:16px;line-height:1.6;
+  background-image:radial-gradient(circle at 12% -8%,#d7eedd 0,rgba(215,238,221,0) 46%),
+                   radial-gradient(circle at 90% 4%,#e4f4e6 0,rgba(228,244,230,0) 40%);
+  background-attachment:fixed;
+}
+.app{max-width:560px;margin:0 auto;min-height:100vh;position:relative}
+.screen{display:none;padding:20px 16px calc(28px + env(safe-area-inset-bottom))}
+#s-quiz{padding-bottom:104px}
+.screen.on{display:block;animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- 安装引导 ---------- */
+.install-hint{margin:2px 0 14px;padding:14px 14px 12px}
+.ih-top{display:flex;align-items:center;gap:8px}
+.ih-icon{font-size:20px}
+.ih-t{flex:1;font-weight:700;font-size:14.5px;color:var(--brand-d)}
+.ih-x{border:0;background:none;font-size:20px;color:var(--ink3);padding:0 4px;line-height:1}
+.ih-steps{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.ih-step{font-size:12.5px;color:var(--ink2);background:var(--brand-ll);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.ih-step b{color:var(--brand-d)}
+.ih-note{margin-top:8px;font-size:12px;color:var(--ink3)}
+
+/* ---------- 首页 ---------- */
+.hero{padding:18px 4px 10px}
+.hero .kicker{font-size:13px;letter-spacing:.14em;color:var(--brand);font-weight:600}
+.hero h1{margin:8px 0 6px;font-size:25px;line-height:1.32;letter-spacing:-.2px}
+.hero p{margin:0;color:var(--ink2);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.progress-card{padding:18px;margin-top:18px}
+.pc-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.pc-num{font-size:30px;font-weight:700;line-height:1;color:var(--brand-d)}
+.pc-num small{font-size:14px;font-weight:500;color:var(--ink3);margin-left:2px}
+.pc-label{font-size:13px;color:var(--ink2);margin-top:6px}
+.bar{height:8px;border-radius:99px;background:#e8f1ea;overflow:hidden;margin-top:14px}
+.bar>i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#7fc79a,#3f9b62);transition:width .5s ease}
+.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.mini-stats div{text-align:center}
+.mini-stats b{display:block;font-size:19px;color:var(--ink)}
+.mini-stats span{font-size:12px;color:var(--ink3)}
+
+.block{margin-top:22px}
+.block h2{font-size:14px;color:var(--ink2);font-weight:600;margin:0 0 10px;padding-left:2px}
+.seg{display:flex;gap:8px;background:#e3f1e7;padding:5px;border-radius:14px}
+.seg button{
+  flex:1;border:0;background:transparent;color:var(--ink2);font-size:15px;
+  padding:11px 6px;border-radius:10px;font-family:inherit;font-weight:500;transition:.18s;
+}
+.seg button.on{background:#fff;color:var(--brand-d);font-weight:700;box-shadow:0 2px 8px rgba(47,110,72,.12)}
+.seg.small button{padding:10px 4px;font-size:14.5px}
+
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  border:0;border-radius:16px;font-family:inherit;font-size:17px;font-weight:600;
+  padding:16px;cursor:pointer;transition:transform .12s,box-shadow .18s;
+}
+.btn:active{transform:scale(.985)}
+.btn-primary{background:linear-gradient(180deg,#4aa76c,#37875a);color:#fff;box-shadow:0 8px 18px rgba(55,135,90,.26)}
+.btn-ghost{background:#fff;color:var(--brand-d);border:1px solid var(--line);box-shadow:var(--shadow)}
+.btn-quiet{background:transparent;color:var(--ink2);font-size:14px;font-weight:500;padding:12px}
+.start-wrap{margin-top:20px;display:grid;gap:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.tip{font-size:12.5px;color:var(--ink3);line-height:1.7;margin:16px 2px 0;text-align:center}
+
+/* ---------- 顶栏 ---------- */
+.topbar{
+  position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;
+  padding:12px 14px 10px;background:rgba(244,252,246,.94);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid #e2f0e7;
+}
+.icon-btn{
+  width:36px;height:36px;flex:0 0 36px;border-radius:12px;border:1px solid var(--line);
+  background:#fff;display:flex;align-items:center;justify-content:center;color:var(--ink2);
+  font-size:17px;line-height:1;cursor:pointer;
+}
+.tb-title{flex:1;min-width:0}
+.tb-title b{display:block;font-size:15px}
+.tb-title span{font-size:12px;color:var(--ink3)}
+.timer{
+  display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);
+  border-radius:99px;padding:6px 12px;font-variant-numeric:tabular-nums;
+  font-size:14px;color:var(--brand-d);font-weight:600;
+}
+.timer i{width:7px;height:7px;border-radius:50%;background:#5fbc82;display:block;animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+.qbar{height:4px;background:#e3f0e8}
+.qbar>i{display:block;height:100%;background:linear-gradient(90deg,#7fc79a,#3f9b62);width:0;transition:width .3s}
+
+/* ---------- 答题 ---------- */
+.qmeta{display:flex;align-items:center;gap:8px;margin:18px 2px 10px;flex-wrap:wrap}
+.tag{font-size:12px;padding:4px 9px;border-radius:8px;background:var(--brand-l);color:var(--brand-d);font-weight:600}
+.tag.src{background:#eef2ff;color:#4a5aa8}
+.tag.again{background:var(--amber-bg);color:var(--amber)}
+.qtext{font-size:17.5px;line-height:1.78;letter-spacing:.1px;margin:0 2px 4px;font-weight:500}
+.blank{display:inline-block;min-width:44px;border-bottom:2px solid #8fc5a3;margin:0 2px;height:1.1em;vertical-align:-2px}
+.opts{display:grid;gap:10px;margin:18px 0 8px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;width:100%;text-align:left;
+  background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px 14px;
+  font-family:inherit;font-size:16px;line-height:1.62;color:var(--ink);
+  cursor:pointer;transition:.16s;box-shadow:0 2px 6px rgba(47,110,72,.03);
+}
+.opt:active{transform:scale(.992)}
+.opt .badge{
+  flex:0 0 24px;height:24px;border-radius:8px;background:#eef6f0;color:var(--ink2);
+  font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px;
+}
+.opt.sel{border-color:#7cc196;background:var(--brand-ll)}
+.opt.sel .badge{background:var(--brand);color:#fff}
+.opt.ok{border-color:var(--ok-line);background:var(--ok-bg)}
+.opt.ok .badge{background:var(--ok);color:#fff}
+.opt.bad{border-color:var(--bad-line);background:var(--bad-bg)}
+.opt.bad .badge{background:var(--bad);color:#fff}
+.opt.dim{opacity:.55}
+.opt[disabled]{cursor:default}
+
+.feedback{margin-top:16px;border-radius:16px;padding:15px 16px;border:1px solid;animation:fade .2s ease}
+.feedback.good{background:var(--ok-bg);border-color:var(--ok-line)}
+.feedback.bad{background:var(--bad-bg);border-color:var(--bad-line)}
+.fb-head{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px}
+.feedback.good .fb-head{color:var(--ok)}
+.feedback.bad .fb-head{color:var(--bad)}
+.fb-head .dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px}
+.feedback.good .dot{background:var(--ok)}
+.feedback.bad .dot{background:var(--bad)}
+.fb-line{font-size:14.5px;margin-top:9px;color:var(--ink);line-height:1.7}
+.fb-line b{color:var(--brand-d)}
+.fb-meta{font-size:12.5px;color:var(--ink2);margin-top:8px}
+.fb-meta span{margin-right:12px}
+
+.reveal-card{margin-top:16px;background:#fff;border:1px dashed #b9dcc6;border-radius:16px;padding:16px}
+.reveal-card h3{margin:0 0 8px;font-size:13px;color:var(--brand);letter-spacing:.05em}
+.reveal-card p{margin:0;font-size:15.5px;line-height:1.8;white-space:pre-wrap}
+
+/* ---------- 打字作答 ---------- */
+.fillwrap{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.fillrow{display:flex;align-items:center;gap:8px}
+.fillrow .fl{flex:0 0 22px;height:22px;border-radius:50%;background:var(--brand-l);color:var(--brand-d);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.fillin{flex:1;min-width:0;border:2px solid var(--line);border-radius:12px;padding:11px 13px;font-size:16px;font-family:inherit;background:#fff;color:var(--ink);outline:none;transition:border-color .15s,background .15s}
+.fillin:focus{border-color:var(--brand)}
+.fillin.ok{border-color:var(--ok);background:var(--ok-bg)}
+.fillin.bad{border-color:var(--bad);background:var(--bad-bg)}
+.fillin:disabled,.essayin:disabled{opacity:.85}
+.essayin{width:100%;border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-size:16px;font-family:inherit;background:#fff;color:var(--ink);outline:none;resize:vertical;min-height:140px;line-height:1.7;transition:border-color .15s}
+.essayin:focus{border-color:var(--brand)}
+.selfrate{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.selfrate .btn{padding:13px;font-size:15.5px}
+.btn-ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+.btn-bad{background:var(--bad-bg);color:var(--bad);border:1px solid var(--bad-line)}
+
+.footer-bar{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,rgba(246,252,247,.55),rgba(246,252,247,.97) 40%);
+}
+.footer-bar .inner{max-width:560px;margin:0 auto}
+.footer-bar .btn{box-shadow:0 10px 22px rgba(55,135,90,.22)}
+
+/* ---------- 结果 ---------- */
+.result-hero{padding:26px 0 6px;text-align:center}
+.ring{
+  width:150px;height:150px;margin:0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:conic-gradient(var(--brand) 0deg,#dfeee4 0deg);position:relative;
+}
+.ring::after{content:'';position:absolute;inset:11px;border-radius:50%;background:#fff;box-shadow:inset 0 2px 10px rgba(47,110,72,.06)}
+.ring .val{position:relative;z-index:1;text-align:center}
+.ring .val b{display:block;font-size:38px;line-height:1;color:var(--brand-d);font-variant-numeric:tabular-nums}
+.ring .val span{font-size:12px;color:var(--ink3)}
+.res-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
+.res-stats div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 6px;text-align:center}
+.res-stats b{display:block;font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums}
+.res-stats span{font-size:12px;color:var(--ink3)}
+.wrong-list{margin-top:20px;display:grid;gap:10px}
+.wq{background:#fff;border:1px solid var(--line);border-left:4px solid #e8a29b;border-radius:12px;padding:13px 14px}
+.wq p{margin:0;font-size:14.5px;line-height:1.65}
+.wq .ans{font-size:13px;color:var(--ok);margin-top:7px}
+.empty{text-align:center;color:var(--ink3);font-size:14px;padding:26px 0}
+
+/* ---------- 错题本 ---------- */
+.wb-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.wb-item .q{font-size:15px;line-height:1.7}
+.wb-item .a{font-size:13.5px;color:var(--ok);margin-top:8px}
+.wb-item .t{font-size:11.5px;color:var(--ink3);margin-top:6px}
+
+.sheet-mask{position:fixed;inset:0;background:rgba(22,44,32,.42);z-index:50;display:none;align-items:flex-end}
+.sheet-mask.on{display:flex;animation:fade .18s ease}
+.sheet{background:#fff;width:100%;max-width:560px;margin:0 auto;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 6px;font-size:17px}
+.sheet p{margin:0 0 16px;font-size:14px;color:var(--ink2);line-height:1.7}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ============ 首页 ============ -->
+<section class="screen on" id="s-home">
+  <div class="hero">
+    <div class="kicker">党务 · 工会 题库</div>
+    <h1>党建工会知识练兵</h1>
+    <p>把题库刷一遍，错题自动回炉，直到做对为止</p>
+  </div>
+
+  <div class="card install-hint" id="installHint" style="display:none">
+    <div class="ih-top">
+      <div class="ih-icon">📱</div>
+      <div class="ih-t">装到手机桌面，像 App 一样用</div>
+      <button class="ih-x" id="hintClose" aria-label="关闭">×</button>
+    </div>
+    <div class="ih-steps">
+      <span class="ih-step"><b>1</b> 点右上角 <b>⋯</b></span>
+      <span class="ih-step"><b>2</b> 选 <b>在浏览器打开</b></span>
+      <span class="ih-step"><b>3</b> 浏览器菜单里选 <b>添加到桌面/主屏幕</b></span>
+    </div>
+    <div class="ih-note">装好后桌面会出现「练兵答题」图标，点开即全屏运行，进度保存在手机里。</div>
+  </div>
+
+  <div class="card progress-card">
+    <div class="pc-top">
+      <div>
+        <div class="pc-num"><span id="doneNum">0</span><small>/ <span id="totalNum">0</span> 题</small></div>
+        <div class="pc-label" id="scopeLabel">全部题库覆盖进度</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;color:var(--ink3)">待复习错题</div>
+        <div style="font-size:20px;font-weight:700;color:var(--amber)" id="wrongNum">0</div>
+      </div>
+    </div>
+    <div class="bar"><i id="progBar"></i></div>
+    <div class="mini-stats">
+      <div><b id="statAnswered">0</b><span>累计作答</span></div>
+      <div><b id="statRate">—</b><span>累计正确率</span></div>
+      <div><b id="statCycle">1</b><span>本轮轮次</span></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <h2>练习范围</h2>
+    <div class="seg" id="scopeSeg">
+      <button data-scope="all" class="on">全部题库</button>
+      <button data-scope="dw">党务知识</button>
+      <button data-scope="gh">工会知识</button>
+    </div>
+  </div>
+
+  <div class="block">
+    <h2>本次题量（最多 50 道）</h2>
+    <div class="seg small" id="countSeg">
+      <button data-n="10">10 道</button>
+      <button data-n="20">20 道</button>
+      <button data-n="30">30 道</button>
+      <button data-n="50" class="on">50 道</button>
+    </div>
+  </div>
+
+  <div class="start-wrap">
+    <button class="btn btn-primary" id="btnStart">开始练习</button>
+    <div class="row2">
+      <button class="btn btn-ghost" id="btnResume" style="display:none">继续上次</button>
+      <button class="btn btn-ghost" id="btnWrong" style="display:none">错题重练</button>
+      <button class="btn btn-ghost" id="btnBook">错题本</button>
+      <button class="btn btn-ghost" id="btnReset">重置进度</button>
+    </div>
+  </div>
+
+  <p class="tip">题库共 616 题，含单选、多选、判断、填空与简答<br>进度保存在本机浏览器，换设备不通用</p>
+</section>
+
+<!-- ============ 答题 ============ -->
+<section class="screen" id="s-quiz">
+  <div class="topbar">
+    <button class="icon-btn" id="btnQuit">←</button>
+    <div class="tb-title">
+      <b id="tbScope">全部题库</b>
+      <span id="tbProg">第 1 题 / 共 50 题</span>
+    </div>
+    <div class="timer"><i></i><span id="timerTxt">00:00</span></div>
+  </div>
+  <div class="qbar"><i id="qBar"></i></div>
+
+  <div class="qmeta" id="qMeta"></div>
+  <div class="qtext" id="qText"></div>
+  <div class="opts" id="qOpts"></div>
+  <div id="qExtra"></div>
+  <div id="qFeed"></div>
+
+  <div class="footer-bar" id="qFooter" style="display:none">
+    <div class="inner"><button class="btn btn-primary" id="btnNext">下一题</button></div>
+  </div>
+</section>
+
+<!-- ============ 结果 ============ -->
+<section class="screen" id="s-result">
+  <div class="result-hero">
+    <div class="ring" id="ring"><div class="val"><b id="resRate">0%</b><span>本组正确率</span></div></div>
+  </div>
+  <div class="res-stats">
+    <div><b id="resRight">0</b><span>答对</span></div>
+    <div><b id="resWrong">0</b><span>答错</span></div>
+    <div><b id="resTime">0:00</b><span>总用时</span></div>
+  </div>
+  <div class="block">
+    <h2>本组错题</h2>
+    <div class="wrong-list" id="resWrongList"></div>
+  </div>
+  <div class="start-wrap">
+    <button class="btn btn-primary" id="btnAgain">再练一组</button>
+    <button class="btn btn-ghost" id="btnHome">返回首页</button>
+  </div>
+</section>
+
+<!-- ============ 错题本 ============ -->
+<section class="screen" id="s-book">
+  <div class="topbar">
+    <button class="icon-btn" id="btnBookBack">←</button>
+    <div class="tb-title"><b>错题本</b><span id="bookCount">共 0 题</span></div>
+    <button class="icon-btn" id="btnBookStart" title="练这些错题">▶</button>
+  </div>
+  <div id="bookList"></div>
+  <div class="start-wrap">
+    <button class="btn btn-primary" id="btnBookPractice">练这些错题</button>
+  </div>
+</section>
+
+</div>
+
+<div class="sheet-mask" id="mask">
+  <div class="sheet">
+    <h3 id="shTitle">提示</h3>
+    <p id="shText"></p>
+    <div class="row2">
+      <button class="btn btn-ghost" id="shNo">取消</button>
+      <button class="btn btn-primary" id="shYes">确定</button>
+    </div>
+  </div>
+</div>
+
+<script id="quiz-data" type="application/json">[{"id":"dws1","src":"dw","type":"single","stem":"基层党组织“三会一课”的内容是（　）。","opts":["支部党员大会、全体党员会、领导班子会、党课","支部党员大会、党支部委员会、党小组会、党课","民主生活会、党支部委员会、党小组会、党课","组织生活会、支部党员大会、支部委员会、党课"],"ans":[1]},{"id":"dws2","src":"dw","type":"single","stem":"党政军民学，东西南北中，党是领导一切的。必须增强（　），自觉维护党中央权威和集中统一领导，自觉在思想上政治上行动上同党中央保持高度一致。","opts":["政治意识、大局意识、核心意识、看齐意识","政治意识、大局意识、权威意识、看齐意识","政治意识、全局意识、核心意识、看齐意识","政治意识、全局意识、权威意识、看齐意识"],"ans":[0]},{"id":"dws3","src":"dw","type":"single","stem":"基层单位正式党员（　）以上的，都应成立党支部。","opts":["3","4","5","7"],"ans":[0]},{"id":"dws4","src":"dw","type":"single","stem":"每名党员月交纳党费数额一般不超过（　）","opts":["800元","1000元","1500元","2000元"],"ans":[1]},{"id":"dws5","src":"dw","type":"single","stem":"党龄从什么时候算起（　）","opts":["递交申请书","从入党日期算起","从预备期满转为正式党员之日算起","成为正式党员后一年"],"ans":[2]},{"id":"dws6","src":"dw","type":"single","stem":"联合党支部覆盖单位一般不超过（　）","opts":["3","5","7","10"],"ans":[1]},{"id":"dws7","src":"dw","type":"single","stem":"以下哪项工作是临时党支部可以做的（　）","opts":["教育、管理、监督党员","发展党员","收缴党费","选举党代表"],"ans":[0]},{"id":"dws8","src":"dw","type":"single","stem":"党支部的成立，一般由基层单位提出申请，上级党委召开会议研究决定并批复，批复时间一般不超过（　）","opts":["30天","60天","90天","180天"],"ans":[0]},{"id":"dws9","src":"dw","type":"single","stem":"党支部书记须有由（　）中的优秀党员担任。","opts":["正式党员","1年以上党龄","3年以上党龄","5年以上党龄"],"ans":[1]},{"id":"dws10","src":"dw","type":"single","stem":"新任职党支部书记需要在（　）完成任职培训","opts":["半年内","1年内","2年内","3年内"],"ans":[0]},{"id":"dws11","src":"dw","type":"single","stem":"党支部要安排热爱党建工作的（　）从事支部建设工作","opts":["优秀员工","预备党员","正式党员","1年以上党龄的党员"],"ans":[2]},{"id":"dws12","src":"dw","type":"single","stem":"《中国共产党国有企业基层组织工作条例》(试行)，规定，党的总支部委员会、支部委员会，每届任期一般为（　）。","opts":["1年","2年","3年","5年"],"ans":[2]},{"id":"dws13","src":"dw","type":"single","stem":"党员大会一般（　）召开一次。","opts":["一个月","一季度","半年","一年"],"ans":[1]},{"id":"dws14","src":"dw","type":"single","stem":"民主评议党员时，评为“优秀”的比例一般不超过（　）。","opts":["五分之一","四分之一","三分之一","二分之一"],"ans":[2]},{"id":"dws15","src":"dw","type":"single","stem":"党员如果没有正当理由，连续（　）不参加党的组织生活，或不交纳党费，或不做党所分配的工作，按自行脱党予以除名。","opts":["3个月","6个月","9个月","12个月"],"ans":[1]},{"id":"dws16","src":"dw","type":"single","stem":"对需要延期或提前换届的，应当认真审核，从严把关，延长或者提前期限一般不超过（　）。","opts":["3个月","6个月","9个月","12个月"],"ans":[3]},{"id":"dws18","src":"dw","type":"single","stem":"提交入党申请书后（　），党支部书记或者组织委员要同入党申请人谈话，了解入党动机。","opts":["一周内","半个月内","一个月内","三个月内"],"ans":[2]},{"id":"dws19","src":"dw","type":"single","stem":"预备党员预备期满，需要继续考察和教育的，可以延长一次预备期，延长时间不少于（　），最长不超过（　）。","opts":["三个月，半年","半年，一年","三个月，一年","半年，一年半"],"ans":[1]},{"id":"dws20","src":"dw","type":"single","stem":"党章规定，可以申请入党的年龄为年满（　）","opts":["16","18","20","22"],"ans":[1]},{"id":"dws21","src":"dw","type":"single","stem":"预备党员的权利有（　）。","opts":["建议权","表决权","选举权","被选举权"],"ans":[0]},{"id":"dws22","src":"dw","type":"single","stem":"党内的最高处分是（　）","opts":["死缓","开除党籍","撤销党内职务","开除公职"],"ans":[1]},{"id":"dws23","src":"dw","type":"single","stem":"党员代表大会代表候选人的差额不少于应选人数的（　）","opts":["10%","15%","20%","30%"],"ans":[2]},{"id":"dws24","src":"dw","type":"single","stem":"党的基层组织进行选举时,选举收回的选票数（　）投票人数,选举无效,应当重新选举","opts":["等于","少于","多于","等于或者少于"],"ans":[2]},{"id":"dws25","src":"dw","type":"single","stem":"实行差额预选时，赞成票超过应到会有选举权人数（　）的，方可列为正式候选人。","opts":["半数","五分之四","三分之二","四分之一"],"ans":[0]},{"id":"dws26","src":"dw","type":"single","stem":"当选的党员代表大会代表、委员会委员，其名单以（　）为序排列。","opts":["拼音","姓氏笔画","上级党组织批准","职务高低"],"ans":[1]},{"id":"dws27","src":"dw","type":"single","stem":"国有企业党员人数（　）人以上的，设立党的基层委员会。","opts":["20","50","80","100"],"ans":[3]},{"id":"dws28","src":"dw","type":"single","stem":"根据国有企业党组织隶属关系和干部管理权限，上级党组织一般应当提前（　）个月提醒做好换届准备工作。","opts":["1","2","3","6"],"ans":[3]},{"id":"dws29","src":"dw","type":"single","stem":"国有企业党委一般由（　）组成，最多不超过11人，其中书记1人、副书记1至2人。","opts":["5-7人","5-9人","3-5人","7-9人"],"ans":[1]},{"id":"dws30","src":"dw","type":"single","stem":"党委委员一般应有（　）年以上党龄。","opts":["1","2","3","5"],"ans":[2]},{"id":"dws31","src":"dw","type":"single","stem":"发展党员，必须把（　）放在首位","opts":["综合素质","日常表现","政治标准","道德品行"],"ans":[2]},{"id":"dws32","src":"dw","type":"single","stem":"入党誓词如下:我志愿加入中国共产党，拥护党的纲领，遵守党的章程，履行党员义务，（　），严守党的纪律，保守党的秘密，对党忠诚，积极工作，为共产主义奋斗终身，随时准备为党和人民牺牲一切，永不叛党。","opts":["执行党的决定","执行党的路线","执行党的政策","执行党的主张"],"ans":[0]},{"id":"dws33","src":"dw","type":"single","stem":"申请入党的人,要填写入党志愿书,要有（　）正式党员作介绍人,要经过支部大会通过和上级党组织批准,才能成为正式党员。","opts":["一名","两名","三名","四名"],"ans":[1]},{"id":"dws34","src":"dw","type":"single","stem":"党组织对违犯党的纪律的党员，应当本着（　）精神，按照错误性质和情节轻重，给以批评教育直至纪律处分。","opts":["惩前毖后、治病救人","坦白从宽、抗拒从严","团结-批评-团结","实事求是"],"ans":[0]},{"id":"dws35","src":"dw","type":"single","stem":"加强对党支部书记和党务工作人员的培训，确保党支部书记和党务工作人员每年至少参加（　）次集中培训。","opts":["1","2","3","5"],"ans":[0]},{"id":"dws36","src":"dw","type":"single","stem":"党支部召开党员大会进行民主评议党员，按照下列哪种程序进行评议。","opts":["民主测评、党员互评、个人自评","个人自评、党员互评、民主测评","党员互评、民主测评、个人自评","个人自评、民主测评、党员互评"],"ans":[1]},{"id":"dws37","src":"dw","type":"single","stem":"具有审批预备党员权限的基层党委，可以在（　）范围直接相互转移和接收党员组织关系。","opts":["全国","省级","市级","县级"],"ans":[0]},{"id":"dws38","src":"dw","type":"single","stem":"发现党员有思想、工作、生活、作风和纪律方面苗头性倾向性问题的，以及群众对其有不良反映的，党组织负责人应当及时进行（　），抓早抓小、防微杜渐。","opts":["谈话提醒","党内除名","警告","批评教育"],"ans":[0]},{"id":"dws39","src":"dw","type":"single","stem":"党员受到开除党籍处分，几年内不得重新入党?（　）","opts":["一年内","三年内","五年内","十年内"],"ans":[2]},{"id":"dws40","src":"dw","type":"single","stem":"预备党员违犯党纪，情节较重的，应当如何处理?（　）","opts":["保留预备党员资格","批评教育或者延长预备期","延长预备期","取消其预备党员资格"],"ans":[3]},{"id":"dws41","src":"dw","type":"single","stem":"临时组建的机构撤销后，临时党支部自然（　）。","opts":["重新组建","撤销","解散","取缔"],"ans":[1]},{"id":"dws42","src":"dw","type":"single","stem":"党员领导干部应当定期为基层党员讲党课，党委书记（　）至少讲1次党课","opts":["每月","每季度","每半年","每年"],"ans":[3]},{"id":"dws43","src":"dw","type":"single","stem":"入党申请人应当向（　）提出入党申请。","opts":["街道党组织","社区党组织","居住地党组织","工作、学习所在单位党组织"],"ans":[3]},{"id":"dws44","src":"dw","type":"single","stem":"预备党员参加民主评议，（　）。","opts":["可以评定等次","不评定等次","不能评为优秀","不能评为良好及以上"],"ans":[1]},{"id":"dws45","src":"dw","type":"single","stem":"《关于新形势下党内政治生活的若干准则》规定，全体党员、干部特别是高级干部必须增强党的意识，时刻牢记自己第一身份（　）。","opts":["党员","干部","服务者","领导"],"ans":[0]},{"id":"dws46","src":"dw","type":"single","stem":"党章规定，发展党员，必须经过（　）","opts":["党的培训","党的书记","党的支部","党的组织"],"ans":[2]},{"id":"dws48","src":"dw","type":"single","stem":"“一岗双责”是指各级领导干部在履行本职岗位管理职责的同时，还要对所在单位和分管工作领域的（　）负责。","opts":["全面从严治党","廉洁自律","从严治党、廉洁自律","党风廉政建设"],"ans":[3]},{"id":"dws49","src":"dw","type":"single","stem":"入党介绍人产生的途径有（　）","opts":["熟人介绍","党组织指定","党员发展对象自己约请","个人指定"],"ans":[1]},{"id":"dws52","src":"dw","type":"single","stem":"把培育和践行社会主义核心价值观的任务落实到基层，要充分发挥（　）的模范带头作用。","opts":["工人、农民、知识分子","党员、干部","青少年、社会公众人物","非公有制经济组织和新社会组织从业人员"],"ans":[1]},{"id":"dws53","src":"dw","type":"single","stem":"发展对象未来（　）内将离开工作、学习单位的，一般不办理接收预备党员的手续。","opts":["一个月","三个月","六个月","一年"],"ans":[1]},{"id":"dws54","src":"dw","type":"single","stem":"党委对党支部上报的预备党员转正的决议,应当在（　）内审批","opts":["一个月","三个月","六个月","一年"],"ans":[1]},{"id":"dws55","src":"dw","type":"single","stem":"预备党员的预备期为（　）","opts":["三个月","一年","两年","半年"],"ans":[1]},{"id":"dws56","src":"dw","type":"single","stem":"党的总支部委员会、支部委员会委员的产生，由上届委员会根据多数党员的意见提出人选，报上级党组织审查同意后，组织党员酝酿确定候选人，在（　）上进行选举。","opts":["党小组会议","党员大会","党支部会议","本单位年会"],"ans":[1]},{"id":"dws57","src":"dw","type":"single","stem":"党员领导干部应当以（　）身份参加所在党支部(党小组)组织生活会，过好双重组织生活。","opts":["党组织负责人","行政负责人","普通党员","特邀代表"],"ans":[2]},{"id":"dws58","src":"dw","type":"single","stem":"党员人数不足50人、确因工作需要，经上级党组织批准，可以设立（　）。","opts":["党委","党支部","党总支","联合党委"],"ans":[2]},{"id":"dws59","src":"dw","type":"single","stem":"企业基层党组织应当严格执行（　）制度，届满按期进行换届选举。","opts":["任期","选任","委任","聘任"],"ans":[0]},{"id":"dws60","src":"dw","type":"single","stem":"党支部的基本任务包括:对党员进行教育、管理、监督和服务，突出政治教育，提高党员素质，坚定理想信念，增强党性，严格党的（　），开展批评和自我批评，维护和执行党的纪律，监督党员切实履行义务，保障党员的权利不受侵犯等。","opts":["政治纪律","作风要求","组织纪律","组织生活"],"ans":[3]},{"id":"dws61","src":"dw","type":"single","stem":"党支部每月相对固定1天开展（　），组织党员集中学习、过组织生活、进行民主议事和志愿服务等。","opts":["支部活动","主题党日","专题学习","党课学习"],"ans":[1]},{"id":"dws63","src":"dw","type":"single","stem":"国有企业重大经营管理事项必须经（　）研究讨论后，再由董事会或者经理层做出决定。","opts":["党委(党组)","书记办公会","党员代表大会","职工代表大会"],"ans":[0]},{"id":"dws69","src":"dw","type":"single","stem":"1915年9月，陈独秀在上海创办了（　），从此拉开了近代中国第一次思想解放运动——新文化运动的序幕","opts":["《新青年》","《青年杂志》","《青春》","《新潮》"],"ans":[1]},{"id":"dws70","src":"dw","type":"single","stem":"入团誓词中：遵守团的（　），执行团的（　），（　）。","opts":["规章，方针","章程，工作","规章，工作","章程，决议"],"ans":[3]},{"id":"dws71","src":"dw","type":"single","stem":"（　）是共青团工作和活动的基本单位，是团的最基层一级组织，它同广大团员青年有着最直接、最广泛的联系，是团的各项工作的显示终端。","opts":["团支部","团总支部","团委","团中央"],"ans":[0]},{"id":"dws72","src":"dw","type":"single","stem":"团的全国代表大会每（　）年举行一次，由中央委员会召集，在特殊情况下可提前或延期举行。","opts":["三","四","五","六"],"ans":[2]},{"id":"dws73","src":"dw","type":"single","stem":"凡是有团员（　）人以上的，都应当建立团的基层组织。","opts":["3人以上","4人以上","5人以上","10人以上"],"ans":[0]},{"id":"dws74","src":"dw","type":"single","stem":"团员年满（　）周岁，没有担任团内职务，应该办理离团手续。","opts":["26","28","30","24"],"ans":[1]},{"id":"dws75","src":"dw","type":"single","stem":"（　）负责团支部全面工作。","opts":["团支部成员","团支部委员会","上级团组织","团支部书记"],"ans":[3]},{"id":"dws76","src":"dw","type":"single","stem":"团员没有正当理由，连续（　）个月不交纳团费、不过团的组织生活，被认为是自行脱团。","opts":["六","三","九","十二"],"ans":[0]},{"id":"dws77","src":"dw","type":"single","stem":"（　）是共青团根本的组织原则。","opts":["民主集中制","全面民主制","代议制","民主协商制"],"ans":[0]},{"id":"dws78","src":"dw","type":"single","stem":"团干部要自觉践行（　）、树牢群众观点，同广大青年打成一片。","opts":["优良传统","青春特质","上级要求","群众路线"],"ans":[3]},{"id":"dws79","src":"dw","type":"single","stem":"要建立党建带团建工作联系点，党组织班子成员每年深入联系点调研指导团建工作不少于（　）次。","opts":["1","2","3","5"],"ans":[0]},{"id":"dws80","src":"dw","type":"single","stem":"团的基层委员会每届任期（　），一般与同级党的委员会任期保持一致。","opts":["一年至三年","两年至五年","三年至五年","一年至五年"],"ans":[2]},{"id":"dws82","src":"dw","type":"single","stem":"青年安全生产示范岗创建活动一般开展频次是（　）","opts":["1年1次","2年1次","3年1次","5年1次"],"ans":[0]},{"id":"dws83","src":"dw","type":"single","stem":"青年安全生产示范岗创建活动坚持“重创建、严考核”原则，实行动态管理。自2023年度起，创建参评全国级青年安全生产示范岗的，原则上须获得省级青年安全生产示范岗称号或者相应级别的先进集体，且获得时间在（　）以上。","opts":["一年以上","两年以上","三年以上","五年以上"],"ans":[0]},{"id":"dws91","src":"dw","type":"single","stem":"1965年初，中建七局落实党中央号召，转战（　），投身国家“大三线”建设。","opts":["重庆","南阳","贵州","云南"],"ans":[0]},{"id":"dws92","src":"dw","type":"single","stem":"1966年，根据经济建设及战备需要，我们由工转兵，集体整编为（　）","opts":["建筑五师13团","铁道兵10师50团","基建工程兵第21支队"],"ans":[2]},{"id":"dws93","src":"dw","type":"single","stem":"1983年9月23日，我们结束17年军旅生涯，在（　）集体转业成立中建七局。","opts":["河南南阳","河北唐山","重庆涪陵","福建福州"],"ans":[0]},{"id":"dws96","src":"dw","type":"single","stem":"重大报道中照片的使用要严格遵守照片审核机制，未审核通过的照片不得对外传播。审核通过的照片，编辑过程中，要严格遵守图片编辑规则，保证上传的照片不发生形变。这个说法（　）。","opts":["错误","正确"],"ans":[1]},{"id":"dws97","src":"dw","type":"single","stem":"要想使用中国地图，标准地图下载来源是（　）。","opts":["自然资源部官网","某互联网搜索引擎检索到的地图"],"ans":[0]},{"id":"dws98","src":"dw","type":"single","stem":"对外宣传报道中，不可以使用“最佳”“最好”等具有极端主观评价色彩的词汇。这种说法（　）。","opts":["正确","错误"],"ans":[0]},{"id":"dws99","src":"dw","type":"single","stem":"人在哪儿，宣传思想工作的重点就在哪儿。这个说法（　）。","opts":["正确","错误"],"ans":[0]},{"id":"dws100","src":"dw","type":"single","stem":"下列采访提问属于开放式提问的是（　）。","opts":["“辞职是因为收入的原因吗?”","“你是辞职下海的，对吗？”","“你辞职是自发的还是被迫的？”","“是什么原因促使你辞职下海？”"],"ans":[3]},{"id":"dws101","src":"dw","type":"single","stem":"（　）是新闻的生命。","opts":["政治性","重要性","娱乐性","真实性"],"ans":[3]},{"id":"dws102","src":"dw","type":"single","stem":"新闻报道要讲导向，副刊、专题节目、广告宣传则可以随意一点。这个说法是（　）。","opts":["正确","错误"],"ans":[1]},{"id":"dws103","src":"dw","type":"single","stem":"下列有关新闻真实的表述中，说法不正确的是（　）。","opts":["新闻真实并非社会真实，媒体只是窗口并非镜子","新闻真实不等于哲学真实和文学真实","新闻真实在紧急事件中可以采用别人口头素材，无需进行核实","新闻真实必须是现实生活中存在的事"],"ans":[2]},{"id":"dws104","src":"dw","type":"single","stem":"原则上，局属二级及以下单位新闻发言人为本单位新闻舆论工作分管领导，工程项目新闻发言人为（　）。","opts":["项目党组织负责人","项目经理","项目党组织负责人或项目经理"],"ans":[2]},{"id":"dws105","src":"dw","type":"single","stem":"借新闻单位或新闻工作者名义，向被报道对象敲诈勒索财物，数额较大或多次敲诈勒索的，构成敲诈勒索罪。","opts":["正确","错误"],"ans":[0]},{"id":"dws106","src":"dw","type":"single","stem":"新闻发布严格遵守中央新闻舆论工作有关政策、中央八项规定精神相关要求，严格执行（　）制度，不得违反集团保密制度，不含政治或商业敏感信息。","opts":["“两审三校”","“三审三校”","“四审三校”","“两审两校”"],"ans":[1]},{"id":"dws107","src":"dw","type":"single","stem":"2016年2月19日，习近平总书记在党的新闻舆论工作座谈会上强调，（　），是党的新闻舆论工作必须遵循的基本方针。","opts":["团结稳定鼓劲、正面宣传为主","遵循市场规律","以调查和负面报道为主","深化改革、与时俱进"],"ans":[0]},{"id":"dws108","src":"dw","type":"single","stem":"我国主流媒体对云南丽江华坪女子高级中学校长张桂梅教书育人、敬业奉献先进事迹集中开展报道，这种形式的宣传称为（　）。","opts":["主题宣传","成就宣传","典型宣传","形势宣传"],"ans":[2]},{"id":"dws109","src":"dw","type":"single","stem":"9.“四风”是指，形式主义、（　）、享乐主义和奢靡之风。","opts":["本位主义","教条主义","好人主义","官僚主义"],"ans":[3]},{"id":"dws110","src":"dw","type":"single","stem":"党支部党员人数一般不超过（　）人。","opts":["20","30","50","100"],"ans":[2]},{"id":"dws111","src":"dw","type":"single","stem":"国有企业党组织工作经费纳入管理费用的部分，一般按照企业上年度（　）的比例安排。","opts":["0.5%","1%","1.5%","2%"],"ans":[1]},{"id":"dws112","src":"dw","type":"single","stem":"党员从何时开始交纳党费（　）","opts":["上级党委同意对其进行预审之日起","支部大会通过其为预备党员之日起","上级党委同意其为预备党员之日起","上级党委同意其为正式党员之日起"],"ans":[1]},{"id":"dws113","src":"dw","type":"single","stem":"党总支委员会一般设委员（　）人，最多不超过（　）人。委员职数单数为宜。","opts":["3-5；7","5-7；9","3-5；9","5-7；11"],"ans":[1]},{"id":"dws114","src":"dw","type":"single","stem":"对正式党员不足3人的支部，如工作需要，且在短期内(一般不超过6个月)能增加党员，经（　），党支部可暂时保留，如短期内不能增加党员，应予以撤销。","opts":["支部党员大会讨论通过","党总支同意","党总支备案","基层党委同意"],"ans":[3]},{"id":"dws115","src":"dw","type":"single","stem":"党员大会一般由（　）召集并主持。","opts":["支部书记","支部副书记","组织委员","支部普通党员即可"],"ans":[0]},{"id":"dws116","src":"dw","type":"single","stem":"对于民主评议中被评为不合格的党员，组织处置方式不包括（　）。","opts":["限期改正","劝退","党内警告","除名"],"ans":[2]},{"id":"dws117","src":"dw","type":"single","stem":"进行选举时，有选举权的到会党员数超过应到会有选举权党员数的（　）方可开会。","opts":["二分之一","三分之二","四分之三","五分之四"],"ans":[3]},{"id":"dws118","src":"dw","type":"single","stem":"换届选举时，被选举人获得的赞成票超过实到会有选举权的党员数的（　）始终得当选。","opts":["二分之一","三分之二","四分之三","五分之四"],"ans":[0]},{"id":"dws119","src":"dw","type":"single","stem":"党的纪律处分有（　）。","opts":["警告、记过、撤销党内职务、留党察看、开除党籍","警告、严重警告、撤销党内职务、留党察看、开除党籍","记过、记大过、撤销党内职务、留党察看、开除党籍","警告、撤销党内职务、留党察看、开除公职、开除党籍"],"ans":[1]},{"id":"dws120","src":"dw","type":"single","stem":"关于国有企业党的建设“四同步”，下列不属于“四同步”的选项是（　）。","opts":["党的建设和国有企业改革同步谋划","党的组织及工作机构同步设置","党的组织及工作制度同步建立","党组织负责人及党务工作人员同步配备","党的工作同步开展"],"ans":[2]},{"id":"dws121","src":"dw","type":"single","stem":"委员会委员在任期内出缺，一般应当召开（　）补选。","opts":["支委会会议或者党员大会","党员大会或者常务委员会会议","支委会会议或者党员代表大会","党员大会或者党员代表大会"],"ans":[3]},{"id":"dws122","src":"dw","type":"single","stem":"召开党员大会进行换届选举，由（　）主持","opts":["上届委员会","大会主席团","新任支部书记","上级党组织"],"ans":[0]},{"id":"dws123","src":"dw","type":"single","stem":"党员大会或党员代表大会选举的监票人，应从（　）的党员中推选，经党员大会或党员代表大会表决通过","opts":["不是代表","不是候选人","是代表","是候选人"],"ans":[1]},{"id":"dws124","src":"dw","type":"single","stem":"换届选举时，召开党员大会的，一般提前（　）报批；召开党员代表大会的，一般提前（　）报批。","opts":["1个月，2个月","2个月，2个月","1个月，4个月","2个月，4个月"],"ans":[2]},{"id":"dws125","src":"dw","type":"single","stem":"党支部委员会选举的监票人，从不是书记、副书记候选人的委员中推选，经全体委员（　）通过","opts":["表决","确定","同意","投票"],"ans":[0]},{"id":"dws126","src":"dw","type":"single","stem":"国有企业按照有关规定成立临时党组织的，临时党组织领导班子成员由批准其成立的党组织（　）。","opts":["任命","指派","指定","选举"],"ans":[2]},{"id":"dws127","src":"dw","type":"single","stem":"对与党组织失去联系6个月以上、通过各种方式查找仍然没有取得联系的党员,予以（　）。","opts":["停止党籍","开除党籍","自行脱党","保留党籍"],"ans":[0]},{"id":"dws128","src":"dw","type":"single","stem":"在入党申请人中确定入党积极分子,应当采取党员推荐、（　）等方式产生人选。","opts":["群团组织推优","群众选举推优","党组织书记推荐","个人申请入党和群团组织推优"],"ans":[0]},{"id":"dws129","src":"dw","type":"single","stem":"党支部每（　）对入党积极分子进行一次考察。","opts":["一个月","三个月","半年","一年"],"ans":[2]},{"id":"dws130","src":"dw","type":"single","stem":"缴纳党费确有困难的党员，经党支部研究，报（　）批准后，可以少交或免交党费。","opts":["上一级党总支","上一级党委","县级以上党组织","市级以上党组织"],"ans":[1]},{"id":"dws131","src":"dw","type":"single","stem":"召开党员大会进行选举，由上届委员会主持。不设委员会的党支部进行选举，由上届（　）主持。","opts":["任意人员","党代表","纪委书记","党支部书记"],"ans":[3]},{"id":"dws132","src":"dw","type":"single","stem":"党的各级代表大会的代表和委员会的产生,要体现选举人的意志。选举采用（　）","opts":["实名制投票","无记名投票","举手表决","集体推荐"],"ans":[1]},{"id":"dws133","src":"dw","type":"single","stem":"每个党员，不论职务的高低，都必须编入党的一个支部、小组或其他特定组织，参加（　），接受党内外群众的（　）。","opts":["党的政治生活,监督","党的思想生活,监督","党的组织生活,监督","党的组织生活,批评"],"ans":[2]},{"id":"dws134","src":"dw","type":"single","stem":"企业党组织每年（　）向上级党组织全面报告上年度党建工作情况，党组织领导班子成员定期向本企业党组织报告抓党建工作情况","opts":["年初","年中","年终","每半年"],"ans":[0]},{"id":"dws135","src":"dw","type":"single","stem":"党支部评星定级周期是（　）","opts":["每月一次","每季度一次","每半年一次","每年一次"],"ans":[2]},{"id":"dws136","src":"dw","type":"single","stem":"要重点抓好本单位三星及以下星级支部的整改提升工作，切实做好帮扶指导，实现支部三星达标率（　）。","opts":["70%以上","80%以上","90%以上","100%"],"ans":[3]},{"id":"dws137","src":"dw","type":"single","stem":"党章规定，委员会成员要根据（　），切实履行自己的职责。","opts":["自身的选择和能力","共同的努力和坚持","集体的决定和分工","自己的职责和分工"],"ans":[2]},{"id":"dws138","src":"dw","type":"single","stem":"党章规定，党的中央和地方各级委员会在必要时召集（　），讨论和决定需要及时解决的重大问题。","opts":["民主生活会","主题党日活动","代表会议","共商大事"],"ans":[2]},{"id":"dws139","src":"dw","type":"single","stem":"党章规定，在党的地方各级代表大会和基层代表大会闭会期间，上级党的组织认为有必要时，可以（　）下级党组织的负责人。","opts":["调动或者指派","指定","选举产生"],"ans":[0]},{"id":"dws140","src":"dw","type":"single","stem":"党组织讨论决定问题，如对重要问题发生争论，双方人数接近，除了在紧急情况下必须按多数意见执行外，应当（　），进一步调查研究，交换意见，下次再表决。","opts":["暂缓作出决定","不予考虑","认真考虑","给与批评"],"ans":[0]},{"id":"dws141","src":"dw","type":"single","stem":"《中国共产党基层组织选举工作条例》规定，不设委员会的党支部书记、副书记的产生，由（　）充分酝酿，提出候选人，报上级党组织审查同意后进行选举。","opts":["全体党员","上届党支部书记","上级党组织","党员代表大会"],"ans":[0]},{"id":"dws142","src":"dw","type":"single","stem":"“五四精神”的核心内容是（　）。","opts":["爱国、互助、团结、奋进","爱国、进步、民主、科学","进步、团结、民主、科学","进步、奉献、友爱、奋进"],"ans":[1]},{"id":"dws143","src":"dw","type":"single","stem":"中国共产主义青年团在（　）召开了第一次全国代表大会。","opts":["上海","北京","天津","广州"],"ans":[3]},{"id":"dws146","src":"dw","type":"single","stem":"团员在（　）人以上的单位，可以建立团总支部。","opts":["10","20","30","50"],"ans":[2]},{"id":"dws147","src":"dw","type":"single","stem":"按照团内有关规定，团委任期结束召开团代表大会进行换届改选时，应至少提前（　）以书面形式向上级团委提出书面请示。","opts":["半个月","1个月","2个月","3个月"],"ans":[1]},{"id":"dws148","src":"dw","type":"single","stem":"要抓好团干培训，每年参加集中轮训的团干部比例应不少于（　）分之一，确保两年全覆盖。","opts":["2","3","4","5"],"ans":[0]},{"id":"dws149","src":"dw","type":"single","stem":"青年突击队依托企业、机关事业单位、高校等团组织组建，人数一般在（　）以上，1人担任队长。","opts":["3人","4人","5人","6人"],"ans":[2]},{"id":"dws150","src":"dw","type":"single","stem":"青年文明号推行星级认定制，全国、省、地市三级青年文明号各分为（　）个星级","opts":["2个","3个","4个","5个"],"ans":[1]},{"id":"dws151","src":"dw","type":"single","stem":"青年文明号活动突出创建导向，从注重结果性的“评比表彰”向过程性的（　）转变","opts":["创建成果","创建总结","创建达优","创建考核"],"ans":[2]},{"id":"dws159","src":"dw","type":"single","stem":"2023年7月中建集团发布了廉洁文化理念，具体内容是？","opts":["合规诚信，崇德善建","自律清正，崇德善建","崇德善建，尚廉筑基","自律清正，尚廉筑基"],"ans":[2]},{"id":"dws160","src":"dw","type":"single","stem":"局领导与XX市市委书记XXX会谈，领导职务表述是否正确（　）。","opts":["正确","错误"],"ans":[1]},{"id":"dws161","src":"dw","type":"single","stem":"下述描述正确的是（　）。","opts":["公司深入践行“一带一路”战略，一大批标志性项目、民生工程顺利推进","公司积极践行一带一路战略，一大批标志性项目、民生工程顺利推进","公司积极践行“一带一路”倡议，一大批标志性项目、民生工程顺利推进","公司积极践行一带一路倡议，一大批标志性项目、民生工程顺利推进"],"ans":[2]},{"id":"dws162","src":"dw","type":"single","stem":"2016年2月19日，习近平总书记在党的新闻舆论工作座谈会上指出，党的新闻舆论工作“要抓住时机、把握节奏、讲究策略，从时度效着力，体现时度效要求”。“时度效”中的“度”是指（　）。","opts":["时机和节奏","力度和分寸","效果和策略","深度和高度"],"ans":[1]},{"id":"dws163","src":"dw","type":"single","stem":"发生突发事件需要进行发布回应时，要快速反应、及时发声，重大突发事件的新闻发布，应在事件发生后（　）小时内进行，并根据舆论情况，持续发布权威信息。","opts":["12","24","48","72"],"ans":[1]},{"id":"dws164","src":"dw","type":"single","stem":"新闻采访的题材称为（　），即新闻采访的主要对象和内容。","opts":["新闻结构","新闻文本","新闻观点","新闻选题"],"ans":[3]},{"id":"dws165","src":"dw","type":"single","stem":"集团重大报道中照片布景应符合相关规范，会场或调研现场布置（　），PPT或横幅内容（　）。","opts":["可铺设迎宾红毯、可摆放鲜花可以有“热烈欢迎”字样","不铺设迎宾红毯、不摆放鲜花不得有“热烈欢迎”字样","可铺设迎宾红毯、可摆放鲜花不得有“热烈欢迎”字样"],"ans":[1]},{"id":"dws166","src":"dw","type":"single","stem":"防治虚假报道，维护新闻真实，力求做到新闻微观真实和宏观真实两个层面的统一，实现新闻真实的基础条件和基本要求是（　）层面。","opts":["微观真实","宏观真实","整体真实","局部真实"],"ans":[0]},{"id":"dws168","src":"dw","type":"single","stem":"第二批主题教育期间，各级子企业可自行向央媒报送外宣稿件。这个说法（　）。","opts":["正确","错误"],"ans":[1]},{"id":"dws169","src":"dw","type":"single","stem":"下述描述不正确的是（　）。","opts":["香港、澳门特别行政区属于“海外”","香港、澳门特别行政区属于“境外”","内地人员赴香港、澳门不属出国但属出境","内地人员赴香港、澳门纳入出国(境)管理"],"ans":[0]},{"id":"dws170","src":"dw","type":"single","stem":"党费使用的范围不包括（　）","opts":["表彰“两优一先”","补助生活困难的党员","修缮、新建基层党组织活动场所产生的相关费用","慰问生病党员"],"ans":[3]},{"id":"dws171","src":"dw","type":"single","stem":"党组织工作经费使用范围不包括（　）","opts":["购买办公用品","党旗党徽配备","组织开展党员先锋岗、党员责任区、党员志愿服务等主题实践活动","召开党内会议"],"ans":[0]},{"id":"dws172","src":"dw","type":"single","stem":"某党员职工月工资收入(税后)为6800元，党员交纳党费的比例为（　）","opts":["0.5%","1%","1.5%","2%"],"ans":[2]},{"id":"dws173","src":"dw","type":"single","stem":"党费计算基数包括以下哪个项目（　）","opts":["住房补贴","交通补贴","防暑降温费","定期、普遍发放的奖金"],"ans":[3]},{"id":"dws174","src":"dw","type":"single","stem":"某离退休党员退休金为5000元，该同志交纳党费的比例为（　）","opts":["0.3%","0.5%","1%","1.5%"],"ans":[1]},{"id":"dws175","src":"dw","type":"single","stem":"以下表述正确的是（　）","opts":["中国共产党中建七局总部第一党支部委员会","中共中建七局河南项目党支部","中国共产党河南公司总支部委员会","中建七局郑州公司总支部委员会"],"ans":[2]},{"id":"dws177","src":"dw","type":"single","stem":"下列哪项不属于党员的义务（　）。","opts":["贯彻执行党的基本路线和各项方针、政策","维护党的团结和统一","坚持党和人民的利益高于一切","对党的工作提出建议和倡议"],"ans":[3]},{"id":"dws178","src":"dw","type":"single","stem":"召开党员代表大会进行选举，由（　）主持。","opts":["大会主席团","党委书记","委员会委员","上届委员会"],"ans":[0]},{"id":"dws179","src":"dw","type":"single","stem":"委员会第一次全体会议选举书记、副书记，召开党员代表大会的，大会主席团指定一名（　）主持。","opts":["正式代表","领导干部","新选出的委员","监票人"],"ans":[2]},{"id":"dws180","src":"dw","type":"single","stem":"党各级代表大会的代表和委员会的产生,要体现（　）的意志。","opts":["选举人","党员代表","党组织","党员"],"ans":[0]},{"id":"dws181","src":"dw","type":"single","stem":"国有企业党组织履行党的建设（　）","opts":["直接责任","第一责任","主体责任","首要责任"],"ans":[2]},{"id":"dws182","src":"dw","type":"single","stem":"对没有人事档案的党员，应当由（　）建立党员档案，由所在党委或者县级以上党委组织部门保存","opts":["其入党所在的党支部","具有审批预备党员权限的基层党委","现所在党委","县级以上党委"],"ans":[1]},{"id":"dws183","src":"dw","type":"single","stem":"中国共产党成立后的第一个党章是（　）通过的，它对党员条件、党的各级组织的建设和党的纪律作了具体规定。","opts":["中共一大","中共二大","中共三大","中共四大"],"ans":[1]},{"id":"dws184","src":"dw","type":"single","stem":"关于党费交纳的规定，正确是（　）","opts":["所有党员都必须按规定交纳党费","生活有困难的党员经申请获批准后可不交纳党费","党费既不能多交，也不能少交","党费可以一年一次性缴纳"],"ans":[1]},{"id":"dws185","src":"dw","type":"single","stem":"《关于培育和践行社会主义核心价值观的意见》要求，把培育和践行社会主义核心价值观落实到（　）中。","opts":["各项生产经营活动","经济发展实践","社会治理","经济发展实践和社会治理"],"ans":[3]},{"id":"dws186","src":"dw","type":"single","stem":"党委对党支部上报的接受预备党员的决议一般应在（　）","opts":["三个月","四个月","五个月","半年"],"ans":[0]},{"id":"dws188","src":"dw","type":"single","stem":"国有企业和集体企业中的党支部保证监督党和国家方针政策的贯彻执行，围绕（　）开展工作，按规定参与企业重大问题的决策，服务、凝聚职工群众、建设企业文化，创造一流业绩。","opts":["改革发展生产经营","生产经营改革发展","发展壮大党员群众","持续稳定管理阶层"],"ans":[1]},{"id":"dws190","src":"dw","type":"single","stem":"《党章》规定，留党察看最长不超过（　）。","opts":["一年","两年","三年","四年"],"ans":[1]},{"id":"dws192","src":"dw","type":"single","stem":"团组织“三性”指的是:政治性、先进性、（　）。","opts":["群众性","组织性","青年性","严肃性"],"ans":[0]},{"id":"dws193","src":"dw","type":"single","stem":"二十八岁以下团员在加入中国共产党后（　）。","opts":["仍保留团籍且仍需在团内参与组织生活","可自选是否保留团籍","不保留团籍","保留团籍但无需在团内参与组织生活"],"ans":[0]},{"id":"dws194","src":"dw","type":"single","stem":"担任中央企业团委委员的专职团干部调离团的岗位，其委员职务自行卸免。根据《中国共产主义青年团章程》，可通过代表会议差额选举增补委员会委员。增补的数额，不得超过本届委员会委员总数的（　）。","opts":["二分之一","三分之一","四分之一","五分之一"],"ans":[1]},{"id":"dws195","src":"dw","type":"single","stem":"团组织工作经费应按照企业35周岁以下青年每人每年不少于（　）元标准，在企业经费预算中单独列支。","opts":["50","100","200","300"],"ans":[2]},{"id":"dws196","src":"dw","type":"single","stem":"党中央从党和国家事业发展全局出发，高度重视和大力推进青年工作，出台新中国历史上第一个（　），部署共青团改革，推动青年工作取得历史性成就。","opts":["青年发展计划","青年发展规划","青年发展战略","青年工作规划"],"ans":[1]},{"id":"dws197","src":"dw","type":"single","stem":"习近平总书记在庆祝中国共产主义青年团成立100周年大会上的讲话中，对共青团提出了四点希望:一是坚持为党育人，二是自觉担当尽责，三是心系广大青年，四是（　）。","opts":["不断自我创新","善于自我革新","勇于自我革命","扩大群众基础"],"ans":[2]},{"id":"dws201","src":"dw","type":"single","stem":"中建七局坐拥国家企业技术中心、国家高新技术企业等科创资源优势，目前已形成（　）的研发平台。","opts":["“三站三新四地一中心”","“三站四新三地两中心”","“四站三新三地一中心”","“四站三新三地两中心”"],"ans":[2]},{"id":"dws202","src":"dw","type":"single","stem":"集团融媒体平台纵向分为（　）个层级。","opts":["二","三","四","五"],"ans":[1]},{"id":"dws203","src":"dw","type":"single","stem":"根据相关制度规定，集团（　）级及以下单位不开设官方网站和新媒体账号，因投资、运营等业务需要，确需开通的按流程报批报备后才可开设。","opts":["二","三","四","五"],"ans":[2]},{"id":"dws204","src":"dw","type":"single","stem":"下列选项中没有错别字的是（　）。","opts":["卯足干劲，在新时代砥砺前行","触摸高质量发展的脉博","确保项目安全度汛","对疫情防控工作进行提前布署"],"ans":[2]},{"id":"dws205","src":"dw","type":"single","stem":"微信公众号群发一次最多可以发布（　）条推文？","opts":["6","7","8","9"],"ans":[2]},{"id":"dws207","src":"dw","type":"single","stem":"国有企业党组织应当坚持（　）和（　）相结合。","opts":["集中教育","素质教育","经常性教育","义务教育"],"ans":[0]},{"id":"dws208","src":"dw","type":"single","stem":"中国特色社会主义制度的最大优势，是（　）。","opts":["马克思主义科学理论指导","坚持改革开放","中国共产党领导","坚持全面从严治党"],"ans":[2]},{"id":"dwm1","src":"dw","type":"multi","stem":"深入推进党风廉政建设和反腐败工作，着力构建（　）的体制机制，切实增强全面从严治党的系统性、创造性、实效性。","opts":["不敢腐","不能腐","不愿腐","不想腐","不必腐"],"ans":[0,1,3]},{"id":"dwm2","src":"dw","type":"multi","stem":"加强党费管理工作需要（　）","opts":["依规设立党费专用账户","严格党费收缴工作","定期开展党费核查","明确专人负责"],"ans":[0,1,2,3]},{"id":"dwm3","src":"dw","type":"multi","stem":"中国共产党党徽为（　）组成的图案。","opts":["镰刀","斧头","锤头","锄头"],"ans":[0,2]},{"id":"dwm4","src":"dw","type":"multi","stem":"发展党员工作应当按照的（　）总要求。","opts":["控制总量","优化结构","提高质量","慎重发展","发挥作用"],"ans":[0,1,2,4]},{"id":"dwm5","src":"dw","type":"multi","stem":"党员代表大会的代表产生的主要程序包括（　）","opts":["被选举单位召开党员大会或者党员代表大会，根据多数选举人的意见确定候选人,进行选举","从党支部开始推荐提名。根据多数党组织和党员的意见提出代表候选人推荐人选","选举单位就代表候选人推荐人选，与上级党组织沟通提出代表候选人初步人选。采取适当方式加强审核把关，可以对代表候选人初步人选在一定范围内公示","选举单位研究确定代表候选人预备人选，报召开党员代表大会的党的基层委员会审查"],"ans":[0,1,2,3]},{"id":"dwm6","src":"dw","type":"multi","stem":"中央企业党委(党组)班子其他成员履行“一岗双责”，既要抓好（　）工作，又要抓好（　）工作。","opts":["分管业务","分管领域党的建设","主要","次要"],"ans":[0,1]},{"id":"dwm7","src":"dw","type":"multi","stem":"国有企业党支部(党总支)的主要职责包括（　）","opts":["学习宣传和贯彻落实党的理论和路线方针政策，宣传和执行党中央、上级党组织和本组织的决议，团结带领职工群众完成本单位各项任务","按照规定参与本单位重大问题的决策，支持本单位负责人开展工作","密切联系职工群众，推动解决职工群众合理诉求，认真做好思想政治工作。领导本单位工会、共青团、妇女组织等群团组织，支持它们依照各自章程独立负责地开展工作","督党员、干部和企业其他工作人员严格遵守国家法律法规、企业财经人事制度，维护国家、集体和群众的利益"],"ans":[0,1,2,3]},{"id":"dwm8","src":"dw","type":"multi","stem":"国有企业党组织应当落实党员的（　），畅通党员参与党内事务的途径","opts":["知情权","参与权","选举权","监督权"],"ans":[0,1,2,3]},{"id":"dwm9","src":"dw","type":"multi","stem":"党员教育的基本任务（　）。","opts":["加强政治理论教育","突出政治教育和政治训练","强化党章党规党纪教育","加强党的宗旨教育"],"ans":[0,1,2,3]},{"id":"dwm10","src":"dw","type":"multi","stem":"正式党员不足3人的单位，应当按照（　）的原则，成立联合党支部。","opts":["地域相邻","行业相近","规模适当","便于管理"],"ans":[0,1,2,3]},{"id":"dwm11","src":"dw","type":"multi","stem":"组织生活会一般以（　）形式召开。","opts":["党支部党员大会","党支部委员会会议","职代会","党小组会"],"ans":[0,1,3]},{"id":"dwm12","src":"dw","type":"multi","stem":"发展党员的阶段有（　）","opts":["入党申请阶段","入党积极分子阶段","列为发展对象阶段","预备党员阶段","正式党员阶段"],"ans":[0,1,2,3,4]},{"id":"dwm13","src":"dw","type":"multi","stem":"党的群众路线是（　）。","opts":["一切为了群众","一切依靠群众","从群众中来","到群众中去"],"ans":[0,1,2,3]},{"id":"dwm14","src":"dw","type":"multi","stem":"中国共产党七届二中全会提出的“两个务必”的具体内容是（　）。","opts":["务必继续保持谦虚谨慎、不骄不躁的作风","务必继续保持以人民为中心的作风","务必继续保持艰苦奋斗的作风","务必继续保持全心全意为人民服务的作风"],"ans":[0,2]},{"id":"dwm15","src":"dw","type":"multi","stem":"中国共产党的一切工作都是为了（　）最广大人民根本利益。","opts":["实现好","维护好","发展好","稳定好"],"ans":[0,1,2]},{"id":"dwm16","src":"dw","type":"multi","stem":"建设（　）的马克思主义执政党，使我们党始终走在时代前列，成为领导全国人民沿着中国特色社会主义道路不断前进的坚强核心。","opts":["学习型","服务型","创新型","开放型"],"ans":[0,1,2]},{"id":"dwm17","src":"dw","type":"multi","stem":"党员代表大会的代表应当（　）","opts":["自觉增强“四个意识”、坚定“四个自信”、做到“两个维护”","遵守党章党规党纪和法律法规","具有履行职责的能力，能反映本选举单位的意见","代表党员的意志"],"ans":[0,1,2,3]},{"id":"dwm18","src":"dw","type":"multi","stem":"紧密结合企业生产经营开展党组织活动，通过设立党员责任区、党员示范岗、党员突击队、党员服务队等形式，引导党员争当（　）。","opts":["生产经营的能手","创新创业的模范","提高效益的标兵","服务群众的先锋"],"ans":[0,1,2,3]},{"id":"dwm19","src":"dw","type":"multi","stem":"党的基层组织包括（　）","opts":["党的基层委员会","总支部委员会","支部委员会","党小组"],"ans":[0,1,2]},{"id":"dwm20","src":"dw","type":"multi","stem":"王某和李某作为张某的入党介绍人，王某和李某要履行哪些职责？","opts":["认真了解申请人的思想、品质、经历和工作表现","向申请人解释党的纲领和党的章程","向申请人说明党员的条件、义务和权利","向党组织作出负责的报告"],"ans":[0,1,2,3]},{"id":"dwm21","src":"dw","type":"multi","stem":"党的基层组织基本任务之一是对党员进行教育、管理、监督和服务，提高党员素质，坚定理想信念，增强党性，（　），保障党员的权利不受侵犯。","opts":["严格党的组织生活","开展批评和自我批评","维护和执行党的纪律","监督党员切实履行义务"],"ans":[0,1,2,3]},{"id":"dwm22","src":"dw","type":"multi","stem":"中国共产党是（　）的先锋队。","opts":["中国工人阶级","中国无产阶级","中国人民和中华民族","中国农民阶级"],"ans":[0,2]},{"id":"dwm23","src":"dw","type":"multi","stem":"组织生活会应当（　）。","opts":["确定主题","会前认真学习，谈心谈话，听取意见","会上查摆问题，开展批评和自我批评，明确整改方向","会后制定整改措施，逐一整改落实"],"ans":[0,1,2,3]},{"id":"dwm24","src":"dw","type":"multi","stem":"形成修身律己、崇德向善、礼让宽容的道德风尚，要以诚信建设为重点，加强（　）教育。","opts":["社会公德","职业道德","家庭美德","个人品德"],"ans":[0,1,2,3]},{"id":"dwm25","src":"dw","type":"multi","stem":"支部评星定级的内容包括（　）","opts":["组织设置","班子建设","党员管理","活动开展","制度运行","作用发挥"],"ans":[0,1,2,3,4,5]},{"id":"dwm26","src":"dw","type":"multi","stem":"加入中国共产主义青年团要符合哪些条件（　）","opts":["年龄在十四岁以上，二十八周岁以下的中国青年","承认团的章程，情愿加入团的一个组织并积极工作","执行团的决议和按期交纳团费的青年","具备少先队员身份"],"ans":[0,1,2]},{"id":"dwm27","src":"dw","type":"multi","stem":"34.团的“三会”指的是（　）","opts":["支部大会","支部委员会","团小组会","主题团课"],"ans":[0,1,2]},{"id":"dwm28","src":"dw","type":"multi","stem":"团员在团内享有（　）。","opts":["选举权","被选举权","表决权","监督权"],"ans":[0,1,2]},{"id":"dwm29","src":"dw","type":"multi","stem":"共青团开展的创建“五四红旗团委”活动的基本标准是（　）","opts":["班子建设好","主题活动好","支部建设好","活动阵地好"],"ans":[0,1,2,3]},{"id":"dwm30","src":"dw","type":"multi","stem":"习近平总书记强调，希望广大党员特别是青年党员认真学习马克思主义理论，结合学习（　），在学思践悟中坚定理想信念，在奋发有为中践行初心使命，努力为实现\"两个一百年\"奋斗目标、实现中华民族伟大复兴的中国梦贡献智慧和力量。","opts":["党史","新中国史","改革开放史","社会主义发展史"],"ans":[0,1,2,3]},{"id":"dwm31","src":"dw","type":"multi","stem":"习近平总书记在党的二十大报告中指出“广大青年要坚定不移听党话、跟党走，怀抱梦想又脚踏实地，敢想敢为又善作善成，立志做（　）的新时代好青年，让青春在全面建设社会主义现代化国家的火热实践中绽放绚丽之花”","opts":["有理想","敢担当","能吃苦","肯奋斗"],"ans":[0,1,2,3]},{"id":"dwm33","src":"dw","type":"multi","stem":"要以学习贯彻习近平新时代中国特色社会主义思想主题教育为契机，带头学思想、（　），不断提高政治判断力、政治领悟力、政治执行力，自觉做党的创新理论的坚定信仰者、积极传播者、忠实实践者。","opts":["强党性","跟党走","重实践","建新功"],"ans":[0,2,3]},{"id":"dwm34","src":"dw","type":"multi","stem":"以下哪些活动可以在团费中列支（　）","opts":["购买体育用品、运动器材","团的信息化建设所产生的软硬件设施购买费用","共青团宣传思想文化产品制作费用","团内表彰所需费用"],"ans":[1,2,3]},{"id":"dwm36","src":"dw","type":"multi","stem":"我们的品牌形象是:（　）","opts":["建设专家","城建伙伴","创新先锋","共赢典范"],"ans":[0,1,3]},{"id":"dwm37","src":"dw","type":"multi","stem":"44.我们的核心价值观是（　）。","opts":["品质保障","品牌提升","价值创造","共赢发展"],"ans":[0,2]},{"id":"dwm38","src":"dw","type":"multi","stem":"我局的文化发展阶段，分为萌芽-立业为国、赢在匠心(1952-1965)、（　）","opts":["成长-力承军魂、赢在执行(1966-1982)","发展-励志华夏、赢在拼搏(1983-2007)","成熟-利众共享、赢在创新(2008-2015)","升华-砺剑谋变、赢在未来(2016-今)"],"ans":[0,1,2,3]},{"id":"dwm39","src":"dw","type":"multi","stem":"习近平总书记强调，做好新形势下宣传思想工作，必须自觉承担起（　）、（　）、（　）、（　）、（　）的使命任务。","opts":["举旗帜","定方向","聚民心","育新人","兴文化","聚合力","展形象"],"ans":[0,2,3,4,6]},{"id":"dwm40","src":"dw","type":"multi","stem":"47.习近平总书记在全国宣传工作会议上提出，宣传思想干部要不断增强“四力”，这也是创作精品力作的前提和基础。“四力”指的是（　）。","opts":["体力","脚力","眼力","脑力","定力","笔力E:智力"],"ans":[1,2,3,5]},{"id":"dwm41","src":"dw","type":"multi","stem":"日常信息发布必须规范策划、采写、编排、发布流程，严格审校制度，严把（　），严守宣传纪律，确保“零差错”。","opts":["政治关","法律关","政策关","保密关","文字关"],"ans":[0,1,2,3,4]},{"id":"dwm42","src":"dw","type":"multi","stem":"新闻图片应（　）、（　）、（　）。图片中出现的人物及环境必须符合中央八项规定具体要求，不得出现涉密信息。","opts":["影像真实","主题突出","构图合理","移花接木","光影得当"],"ans":[0,1,2,4]},{"id":"dwm43","src":"dw","type":"multi","stem":"新闻报道涉及建设工地时，应注意哪些事项（　）。","opts":["进入工地人员是否正确佩戴安全帽","高空作业人员是否正确使用安全绳","检查项目设备物料是否堆放有序","检查容器内作业人数是否符合规定"],"ans":[0,1,2,3]},{"id":"dwm44","src":"dw","type":"multi","stem":"遇到以下提法，编辑需要复核其权威表述来源的是（　）。","opts":["千年一遇","首位","刷新世界纪录","之最"],"ans":[0,1,2,3]},{"id":"dwm45","src":"dw","type":"multi","stem":"发布短视频前，应仔细检查以下哪些内容（　）。","opts":["发布的短视频封面设置","发布的短视频文字介绍","发布的短视频字幕校对","发布的短视频CI规范","发布的短视频保密检查"],"ans":[0,1,2,3,4]},{"id":"dwm46","src":"dw","type":"multi","stem":"国有企业党组织发挥领导核心和政治核心作用，可以归结为几个方面，即（　）","opts":["把方向","管大局","定政策","保落实","促落实"],"ans":[0,1,3]},{"id":"dwm47","src":"dw","type":"multi","stem":"党费使用的原则是（　）","opts":["统筹安排","量入为出","收支平衡","略有结余","组织安排"],"ans":[0,1,2,3]},{"id":"dwm48","src":"dw","type":"multi","stem":"下列选项不属于党员权利的是（　）。","opts":["对党的工作提出批评和指正","行使表决权、选举权","在党的会议因意见不合侮辱他人","在工作单位优先升职"],"ans":[0,2,3]},{"id":"dwm49","src":"dw","type":"multi","stem":"党支部的基本任务包括（　）。","opts":["对要求入党的积极分子进行教育和培养","对党员进行教育、管理、监督和服务","坚持民主集中制，发扬党内民主","密切联系群众"],"ans":[0,1,3]},{"id":"dwm50","src":"dw","type":"multi","stem":"留党察看最长不超过两年，党员在留党察看期间没有（　）。","opts":["表决权","接受党的教育和培训的权利","对党的工作提出建议和倡议的权利","选举权和被选举权"],"ans":[0,3]},{"id":"dwm51","src":"dw","type":"multi","stem":"党的基层组织设立的委员会委员候选人，按照（　）的原则提名。","opts":["德才兼备","以德为先","民主集中制","班子结构合理"],"ans":[0,1,3]},{"id":"dwm52","src":"dw","type":"multi","stem":"党支部应当经常开展谈心谈话。（　）之间，每年谈心谈话一般不少于1次。","opts":["党支部委员和委员","党支部委员和党员","党员和党员","书记和党员"],"ans":[0,1,2]},{"id":"dwm53","src":"dw","type":"multi","stem":"党支部书记应当具备良好政治素质，热爱党的工作，具有一定的（　），敢于担当、乐于奉献，带头发挥先锋模范作用，在党员、群众中有较高威信，一般应当具有1年以上党龄。","opts":["政策理论水平","组织协调能力","群众工作本领","政治思想认知"],"ans":[0,1,2]},{"id":"dwm54","src":"dw","type":"multi","stem":"基层党组织应当注重分析党员（　）。","opts":["思想状况","心理状态","情感状态","工作状态"],"ans":[0,1]},{"id":"dwm55","src":"dw","type":"multi","stem":"对经过一年以上培养教育和考察、基本具备党员条件的入党积极分子，（　），可列为发展对象。","opts":["首先要听取党小组、培养联系人、党员和群众意见","经支部委员会研究后","经党员大会表决通过后","经支部委员会讨论同意并报上级党委备案后"],"ans":[0,3]},{"id":"dwm56","src":"dw","type":"multi","stem":"党委审批预备党员前，应当指派（　）或（　）同发展对象谈话（　）。","opts":["党支部委员","党委委员","组织员","单位行政领导"],"ans":[1,2]},{"id":"dwm57","src":"dw","type":"multi","stem":"党员代表产生的主要程序是:（　）","opts":["从党支部开始推荐提名。根据多数党组织和党员的意见，提出代表候选人推荐人选","选举单位就代表候选人推荐人选与上级党组织沟通，提出代表侯选人初步人选。采取适当方式加强审核把关，可以对代表候选人初步人选在一定范围内公示","选举单位研究确定代表候选人预备人选，报召开党员代表大会的党的基层委员会审查","选举单位召开党员大会或者党员代表大会，根据多数选举人的意见确定候选人，进行选举"],"ans":[0,1,2,3]},{"id":"dwm58","src":"dw","type":"multi","stem":"选举应当（　），任何组织和个人不得以任何方式强迫选举人选举或者不选举某个人。","opts":["以等额的方式开展","充分发扬民主","尊重和保障党员的民主权利","体现选举人的意志"],"ans":[1,2,3]},{"id":"dwm59","src":"dw","type":"multi","stem":"临时党支部主要组织党员开展政治学习，教育、管理、监督党员.对入党积极分子进行教育培养等，一般（　）","opts":["不发展党员、处分处置党员","不收缴党费","不选举党代表大会代表和进行换届","不开展组织生活"],"ans":[0,1,2]},{"id":"dwm60","src":"dw","type":"multi","stem":"党支部日常应建立（　）台账","opts":["组织关系转接","入党积极分子","党员","农民工和流动党员"],"ans":[0,1,2,3]},{"id":"dwm61","src":"dw","type":"multi","stem":"以下哪些属于党支部书记十项必做事项清单（　）","opts":["计划与总结","党员管理","党内政治生活","融入中心工作"],"ans":[0,1,2,3]},{"id":"dwm62","src":"dw","type":"multi","stem":"不断提高党的创造力、凝聚力、战斗力，建设（　）的马克思主义执政党，使我们党始终走在时代前列，成为领导全国人民沿着中国特色社会主义道路不断前进的坚强核心。","opts":["先进型","学习型","服务型","创新型"],"ans":[1,2,3]},{"id":"dwm63","src":"dw","type":"multi","stem":"习近平总书记在党的二十大报告中明确要求“全党要把青年工作作为战略性工作来抓，用党的科学理论武装青年，用党的初心使命感召青年，做（　）。","opts":["青年朋友的知心人","青年工作的热心人","青年事业的贴心人","青年群众的引路人"],"ans":[0,1,3]},{"id":"dwm64","src":"dw","type":"multi","stem":"以下哪些内容符合“号手岗队”创建工作规范（　）","opts":["在项目党组织领导下，组建一支5人青年突击队","某项目已获评省级青年文明号，积极申报“一星级全国青年文明号”","某90人的青年集体，积极申报市级“青安岗”","某30岁青年技术骨干积极申报公司级“青年岗位能手"],"ans":[0,1,2,3]},{"id":"dwm65","src":"dw","type":"multi","stem":"青年突击队根据任务的性质、时效、目标等，可相应组建临时型、固定型、（　）等不同类型或相互结合的青年突击队。","opts":["攻坚型","志愿型","专业型","常备型"],"ans":[1,2,3]},{"id":"dwm66","src":"dw","type":"multi","stem":"要把团的建设纳入同级党的建设总体规划，同部署、同落实、同检查，做到党团建设同步谋划、（　）。","opts":["党团组织同步设置","党团力量同步配备","党团工作同步开展","党团考核同步推进"],"ans":[0,1,2]},{"id":"dwm71","src":"dw","type":"multi","stem":"下列新闻报道中表述存在错误的是（　）。","opts":["国际民生","新疆省","上海市市委书记","新冠肺炎疫情爆发以来"],"ans":[0,1,2,3]},{"id":"dwm72","src":"dw","type":"multi","stem":"下面哪些内容属于新闻稿件审核项目（　）。","opts":["新闻合规性审核","新闻要件审核","文字内容审核","图片内容审核","新闻排版审核","地图使用审核"],"ans":[0,1,2,3,4,5]},{"id":"dwm73","src":"dw","type":"multi","stem":"以下表述正确的是（　）。","opts":["未经批准，干部职工不能以职务身份、单位名义在网络平台开通个人账号","不对外传播、不议论涉及人事任免、薪酬待遇、机构改革、通知文件等企业内部信息","严格规范报批程序，干部职工不擅自以单位名义接受媒体采访、参加企业外部的论坛、交流或发表公开讲话","不在网络平台晒工资单、晒单位福利、晒单位食堂，不擅自拍摄工作照片、短视频发布在网络平台"],"ans":[0,1,2,3]},{"id":"dwm74","src":"dw","type":"multi","stem":"以下哪个媒体属于中央核心级媒体（　）。","opts":["人民日报(纸质)","央视每晚19点播出的《新闻联播》","新华全媒头条","人民网","新华网"],"ans":[0,1,2]},{"id":"dwm75","src":"dw","type":"multi","stem":"2016年2月19日，习近平总书记在党的新闻舆论工作座谈会的讲话中提出“推出有思想、有温度、有品质的作品”，为此，新闻工作者必须（　）。","opts":["改文风","俯下身","沉下心","察实情","说实话","动真情","走出去"],"ans":[0,1,2,3,4,5]},{"id":"dwm77","src":"dw","type":"multi","stem":"对不具备单独成立党支部条件的单位，可以（　）","opts":["依托有3名以上正式党员的党支部成立联合党支部","现有党员纳入上级党组织管理","保持现状，暂不成立","积极审批发展党员"],"ans":[0,1,2]},{"id":"dwm78","src":"dw","type":"multi","stem":"流入地党组织应当协助做好流动党员日常管理。应当按照（　）的方式，组织流动党员就近就便参加组织生活。","opts":["组织关系一方隶属","参加多重组织生活","民主投票","民主评议"],"ans":[0,1]},{"id":"dwm79","src":"dw","type":"multi","stem":"党的组织建设的“两个覆盖”指的是（　）。","opts":["党的组织覆盖","党的制度覆盖","党的体系覆盖","党的工作覆盖"],"ans":[0,3]},{"id":"dwm80","src":"dw","type":"multi","stem":"预备党员转正后,党支部应当及时将其（　）,交党委存入本人人事档案。","opts":["《中国共产党入党志愿书》","入党申请书","政治审查材料","转正申请书","培养教育考察材料"],"ans":[0,1,2,3,4]},{"id":"dwm81","src":"dw","type":"multi","stem":"国有企业党委(党组)要履行企业党风廉政建设主体责任，领导、支持内设纪检组织履行监督执纪问责职责，严明（　），推动全面从严治党向基层延伸。","opts":["政治纪律","政治能力","政治风险","政治规矩"],"ans":[0,3]},{"id":"dwm82","src":"dw","type":"multi","stem":"党代表大会代表在任期内，有下列哪些情形的，其代表资格终止（　）。","opts":["被通报批评的","被停止党籍的","调离同级党代表大会所属范围的","辞去代表职务被接受的"],"ans":[1,2,3]},{"id":"dwm83","src":"dw","type":"multi","stem":"《党章》中对于党费的说明和规定包括（　）。","opts":["愿意按时交纳党费，是申请入党的前提条件","党员如果没有正当理由，连续六个月不交纳党费，就被认为是自行脱党","鼓励党员多交党费，以表达对党的忠诚","党费可以从工资中代扣或让人代缴"],"ans":[0,1]},{"id":"dwm84","src":"dw","type":"multi","stem":"党的基层组织，根据工作需要和党员人数，经上级党组织批准，分别设立党的（　）。","opts":["基层委员会","总支部委员会","支部委员会","地方委员会"],"ans":[0,1,2]},{"id":"dwm86","src":"dw","type":"multi","stem":"团组织的“三力一度”指的是（　）和大局贡献度。","opts":["引领力","组织力","凝聚力","服务力"],"ans":[0,1,3]},{"id":"dwm88","src":"dw","type":"multi","stem":"坚持从严治团，要坚决反对机关化、（　）倾向。","opts":["行政化","贵族化","娱乐化","官僚化"],"ans":[0,1,2]},{"id":"dwm91","src":"dw","type":"multi","stem":"2018年4月20日至21日，习近平总书记在全国网络安全和信息化工作会议上指出，要加强网上正面宣传，旗帜鲜明坚持正确（　）、（　）、（　），用新时代中国特色社会主义思想和党的十九大精神团结、凝聚亿万网民，构建网上网下同心圆，更好凝聚社会共识，巩固全党全国人民团结奋斗的共同思想基础（　）。","opts":["政治方向","舆论导向","传播导向","价值取向","创作导向"],"ans":[0,1,3]},{"id":"dwm92","src":"dw","type":"multi","stem":"下列哪些国别由中建七局牵头海外传播工作（　）。","opts":["尼泊尔","孟加拉","沙特","巴基斯坦"],"ans":[0,1]},{"id":"dwm93","src":"dw","type":"multi","stem":"为强化舆情管控工作，局党委要求各单位做到“两个全覆盖”。“两个全覆盖”具体指的是（　）。","opts":["舆情专项培训全覆盖","舆情预警提示全覆盖","舆情应急演练全覆盖","舆情协同联动全覆盖"],"ans":[0,2]},{"id":"dwm94","src":"dw","type":"multi","stem":"以下哪项工作是临时党支部可以做的（　）","opts":["教育党员","发展党员","管理党员","监督党员"],"ans":[0,2,3]},{"id":"dwm95","src":"dw","type":"multi","stem":"预备党员预备期满，需要继续考察和教育的，可以延长一次预备期，延长时间不少于（　），最长不超过（　）。","opts":["三个月","半年","一年","一年半"],"ans":[1,2]},{"id":"dwm98","src":"dw","type":"multi","stem":"下列采访提问不属于开放式提问的是（　）。","opts":["“辞职是因为收入的原因吗?”","“你是辞职下海的，对吗？”","“你辞职是自发的还是被迫的？”","“是什么原因促使你辞职下海？”"],"ans":[0,1,2]},{"id":"dwm99","src":"dw","type":"multi","stem":"“四风”是指，形式主义、（　）和奢靡之风。","opts":["本位主义","教条主义","享乐主义","官僚主义"],"ans":[2,3]},{"id":"dwm100","src":"dw","type":"multi","stem":"对于民主评议中被评为不合格的党员，组织处置方式包括（　）。","opts":["限期改正","劝退","党内警告","除名"],"ans":[0,1,3]},{"id":"dwm102","src":"dw","type":"multi","stem":"在入党申请人中确定入党积极分子,应当采取（　）等方式产生人选。","opts":["群团组织推优","群众选举推优","党员推荐","党组织书记推荐"],"ans":[0,2]},{"id":"dwm103","src":"dw","type":"multi","stem":"下述描述正确的是（　）。","opts":["香港、澳门特别行政区属于“海外”","香港、澳门特别行政区属于“境外”","内地人员赴香港、澳门不属出国但属出境","内地人员赴香港、澳门纳入出国(境)管理"],"ans":[1,2,3]},{"id":"dwm104","src":"dw","type":"multi","stem":"党费使用的范围包括（　）","opts":["表彰“两优一先”","补助生活困难的党员","修缮、新建基层党组织活动场所产生的相关费用","党建考核兑现"],"ans":[0,1,2]},{"id":"dwm105","src":"dw","type":"multi","stem":"党组织工作经费使用范围包括（　）","opts":["购买办公用品","党旗党徽配备","组织开展党员先锋岗、党员责任区、党员志愿服务等主题实践活动","召开党内会议"],"ans":[1,2,3]},{"id":"dwm106","src":"dw","type":"multi","stem":"党费计算基数不包括以下哪个项目（　）","opts":["住房补贴","交通补贴","防暑降温费","定期、普遍发放的奖金"],"ans":[0,1,2]},{"id":"dwm107","src":"dw","type":"multi","stem":"以下党组织名称表述不规范的是（　）","opts":["中国共产党中建七局总部第一党支部委员会","中共中建七局河南项目党支部","中国共产党河南公司总支部委员会","中建七局郑州公司总支部委员会"],"ans":[0,1,3]},{"id":"dwm109","src":"dw","type":"multi","stem":"关于党费交纳的规定，不正确是（　）","opts":["所有党员都必须按规定交纳党费","生活有困难的党员经申请获批准后可不交纳党费","党费既不能多交，也不能少交","党费可以一年一次性缴纳"],"ans":[0,2,3]},{"id":"dwm110","src":"dw","type":"multi","stem":"发展党员工作应当按照的（　）总要求。","opts":["控制总量","优化结构","提高质量","发挥作用"],"ans":[0,1,2,3]},{"id":"dwm111","src":"dw","type":"multi","stem":"发展党员的阶段有入党申请阶段和（　）","opts":["入党积极分子阶段","列为发展对象阶段","预备党员阶段","正式党员阶段"],"ans":[0,1,2,3]},{"id":"dwm112","src":"dw","type":"multi","stem":"支部评星定级的内容包括组织设置、班子建设（　）","opts":["党员管理","活动开展","制度运行","作用发挥"],"ans":[0,1,2,3]},{"id":"dwm113","src":"dw","type":"multi","stem":"习近平总书记强调，做好新形势下宣传思想工作，必须自觉承担起举旗帜、聚民心和（　）的使命任务。","opts":["定方向","育新人","兴文化","展形象"],"ans":[1,2,3]},{"id":"dwm115","src":"dw","type":"multi","stem":"日常信息发布必须规范策划、采写、编排、发布流程，严格审校制度，严把（　）和文字关，严守宣传纪律，确保“零差错”。","opts":["政治关","法律关","政策关","保密关"],"ans":[0,1,2,3]},{"id":"dwm116","src":"dw","type":"multi","stem":"新闻图片应影像真实和（　）。图片中出现的人物及环境必须符合中央八项规定具体要求，不得出现涉密信息。严禁使用任何有影响企业形象及引起负面舆情的图片。","opts":["光影得当","主题突出","构图合理","移花接木"],"ans":[0,1,2]},{"id":"dwm117","src":"dw","type":"multi","stem":"党的二十大报告指出，要以党的政治建设统领党的建设各项工作，坚持（　）和（　）同向发力。","opts":["思想建党","理论强党","制度治党","依规治党"],"ans":[0,2]},{"id":"dwm118","src":"dw","type":"multi","stem":"新闻排版审核、地图使用审核和哪些内容属于新闻稿件审核项目（　）。","opts":["新闻合规性审核","新闻要件审核","文字内容审核","图片内容审核"],"ans":[0,1,2,3]},{"id":"dwm122","src":"dw","type":"multi","stem":"团组织“三性”指的是（　）。","opts":["群众性","先进性","政治性","严肃性"],"ans":[0,1,2]},{"id":"dwm126","src":"dw","type":"multi","stem":"下列选项对于《中国共产党党务公开条例(试行)》所称党务公开表述正确的有（　）。","opts":["坚持积极稳妥是党务公开应当遵循的原则","党务公开的内容和范围没有限制，涉及党活动的方方面面","党务公开工作领导体制为党中央统一领导，地方党委分级负责，各部门各单位各负其责","党务公开是指党的组织将其实施党的领导活动、加强党的建设工作的有关事务，按规定只在党内公开"],"ans":[0,2]},{"id":"dwm127","src":"dw","type":"multi","stem":"关于党支部委员会换届选举工作描述不正确的是（　）。","opts":["未经选举可直接任命除支部书记、副书记之外的支委成员","书记、副书记候选人按照不低于20%的比例进行差额选举","书记、副书记候选人获得的赞成票超过应到会有选举权人数半数的，始得当选","预备党员不能被选举为支委成员，但可以参与投票"],"ans":[0,1,3]},{"id":"dwm128","src":"dw","type":"multi","stem":"关于预备党员转正的说法正确的有（　）。","opts":["只要预备党员的预备期满一年就可以转为正式党员","预备党员在预备期间认真履行党员义务，具备党员条件的，应当按期转为正式党员","预备党员转正必须经过支部大会讨论通过和上级党组织批准","预备党员转正必须由本人提出书面转正申请"],"ans":[1,2,3]},{"id":"dwm131","src":"dw","type":"multi","stem":"要增强党组织（　），坚持大抓基层的鲜明导向，把基层党组织建设成为有效实现党的领导的坚强战斗堡垒。","opts":["政治功能","教育功能","组织功能","管理功能"],"ans":[0,2]},{"id":"dwm132","src":"dw","type":"multi","stem":"党的二十大报告指出，要坚持和加强党中央集中统一领导，健全（　）的党的领导制度体系。","opts":["总揽全局","统筹各方","协调各方","协调全局"],"ans":[0,2]},{"id":"dwj1","src":"dw","type":"judge","stem":"党政军民学，东西南北中，党是领导一切的。必须增强政治意识、全局意识、核心意识、看齐意识，自觉维护党中央权威和集中统一领导，自觉在思想上政治上行动上同党中央保持高度一致","opts":["正确","错误"],"ans":[1],"exp":"政治意识、大局意识、核心意识、看齐意识"},{"id":"dwj2","src":"dw","type":"judge","stem":"民主评议党员时，评为“优秀”的比例一般不超过三分之一","opts":["正确","错误"],"ans":[0]},{"id":"dwj3","src":"dw","type":"judge","stem":"对需要延期或提前换届的，应当认真审核，从严把关，延长或者提前期限一般不超过六个月","opts":["正确","错误"],"ans":[1],"exp":"一年"},{"id":"dwj4","src":"dw","type":"judge","stem":"发展党员必须参加不少于 3 天或 24 个学时的培训，并取得培训合格证书","opts":["正确","错误"],"ans":[0]},{"id":"dwj5","src":"dw","type":"judge","stem":"提交入党申请书后三个月内，党支部书记或者组织委员要同入党申请人谈话，了解入党动机","opts":["正确","错误"],"ans":[1],"exp":"一个月内"},{"id":"dwj6","src":"dw","type":"judge","stem":"预备党员有选举权和被选举权","opts":["正确","错误"],"ans":[1]},{"id":"dwj7","src":"dw","type":"judge","stem":"党内的最高处分是开除党籍","opts":["正确","错误"],"ans":[0]},{"id":"dwj8","src":"dw","type":"judge","stem":"重大报道中照片的使用要严格遵守照片审核机制，未审核通过的照片不得对外传播。审核通过的照片，编辑过程中，要严格遵守图片编辑规则，保证上传的照片不发生形变。这个说法","opts":["正确","错误"],"ans":[0]},{"id":"dwj12","src":"dw","type":"judge","stem":"新闻真实在紧急事件中可以采用别人口头素材，无需进行核实","opts":["正确","错误"],"ans":[1]},{"id":"dwj14","src":"dw","type":"judge","stem":"党员从上级党委同意其为正式党员之日起开始交纳党费","opts":["正确","错误"],"ans":[1],"exp":"支部大会通过其为预备党员之日起"},{"id":"dwj15","src":"dw","type":"judge","stem":"对正式党员不足 3 人的支部，如工作需要，且在短期内(一般不超过 6 个月)能增加党员，经基层党委同意，党支部可暂时保留，如短期内不能增加党员，应予以撤销","opts":["正确","错误"],"ans":[0]},{"id":"dwj16","src":"dw","type":"judge","stem":"党的纪律处分有警告、严重警告、撤销党内职务、留党察看、开除党籍五种","opts":["正确","错误"],"ans":[0]},{"id":"dwj17","src":"dw","type":"judge","stem":"党员大会或党员代表大会选举的监票人，应从不是代表的党员中推选，经党员大会或党员代表大会表决通过","opts":["正确","错误"],"ans":[1],"exp":"应从不是候选人的党员中推选，"},{"id":"dwj18","src":"dw","type":"judge","stem":"召开党员大会进行选举，由上届委员会主持。不设委员会的党支部进行选举，由上届党支部书记主持","opts":["正确","错误"],"ans":[0]},{"id":"dwj19","src":"dw","type":"judge","stem":"企业党组织每年年初向上级党组织全面报告上年度党建工作情况，党组织领导班子成员定期向本企业党组织报告抓党建工作情况","opts":["正确","错误"],"ans":[0]},{"id":"dwj20","src":"dw","type":"judge","stem":"中国共产主义青年团在天津召开了第一次全国代表大会","opts":["正确","错误"],"ans":[1],"exp":"广州"},{"id":"dwj21","src":"dw","type":"judge","stem":"青年文明号推行星级认定制，全国、省、地市三级青年文明号各分为三个星级","opts":["正确","错误"],"ans":[0]},{"id":"dwj23","src":"dw","type":"judge","stem":"集团重大报道中照片布景应符合相关规范，会场或调研现场布置可铺设迎宾红毯、可摆放鲜花，PPT 或横幅内容可以有“热烈欢迎”字样","opts":["正确","错误"],"ans":[1],"exp":"不铺设迎宾红毯、不摆放鲜花 不得有“热烈欢迎”字样"},{"id":"dwj24","src":"dw","type":"judge","stem":"各级党组织每半年至少专题研究 1 次意识形态工作","opts":["正确","错误"],"ans":[0]},{"id":"dwj25","src":"dw","type":"judge","stem":"某党员职工月工资收入(税后)为 6800 元，党员交纳党费的比例为 1%","opts":["正确","错误"],"ans":[1],"exp":"1.5%。"},{"id":"dwj26","src":"dw","type":"judge","stem":"党员人数超过 10 人的，可设党小组","opts":["正确","错误"],"ans":[0]},{"id":"dwj27","src":"dw","type":"judge","stem":"召开党员代表大会进行选举，由大会主席团主持","opts":["正确","错误"],"ans":[0]},{"id":"dwj28","src":"dw","type":"judge","stem":"党各级代表大会的代表和委员会的产生,要体现党员代表的意志","opts":["正确","错误"],"ans":[1],"exp":"选举人"},{"id":"dwj29","src":"dw","type":"judge","stem":"国有企业党组织履行党的建设第一责任","opts":["正确","错误"],"ans":[1],"exp":"主体责任"},{"id":"dwj30","src":"dw","type":"judge","stem":"《关于培育和践行社会主义核心价值观的意见》要求，把培育和践行社会主义核心价值观落实到经济发展实践和社会治理中","opts":["正确","错误"],"ans":[0]},{"id":"dwj31","src":"dw","type":"judge","stem":"党委对党支部上报的接受预备党员的决议一般应在三个月内","opts":["正确","错误"],"ans":[0]},{"id":"dwj32","src":"dw","type":"judge","stem":"《党章》规定，留党察看最长不超过一年","opts":["正确","错误"],"ans":[1],"exp":"两年"},{"id":"dwj33","src":"dw","type":"judge","stem":"1922 年 5 月 5 日，中国共青团的成立时间是","opts":["正确","错误"],"ans":[0]},{"id":"dwj34","src":"dw","type":"judge","stem":"二十八岁以下团员在加入中国共产党后保留团籍但无需在团内参与组织生活","opts":["正确","错误"],"ans":[1],"exp":"仍保留团籍且仍需在团内参与组织生活"},{"id":"dwj35","src":"dw","type":"judge","stem":"团组织工作经费应按照企业 35 周岁以下青年每人每年不少于 200元标准，在企业经费预算中单独列支","opts":["正确","错误"],"ans":[0]},{"id":"dwj36","src":"dw","type":"judge","stem":"党中央从党和国家事业发展全局出发，高度重视和大力推进青年工作，出台新中国历史上第一个青年发展规划，部署共青团改革，推动青年工作取得历史性成就","opts":["正确","错误"],"ans":[0]},{"id":"dwj37","src":"dw","type":"judge","stem":"党的最大政治优势是密切联系群众","opts":["正确","错误"],"ans":[0]},{"id":"dwj38","src":"dw","type":"judge","stem":"政治审查必须严肃认真、实事求是注重本人的一贯表现。审查情况应当形成结论性材料","opts":["正确","错误"],"ans":[0]},{"id":"dwj39","src":"dw","type":"judge","stem":"《中国共产党宣传工作条例》指出，宣传工作是党的一项极端重要的工作，是中国共产党领导人民不断夺取革命、建设、改革胜利的优良传统和政治优势","opts":["正确","错误"],"ans":[0]},{"id":"dwj40","src":"dw","type":"judge","stem":"新闻宣传是否善于创新，是否能够做到常做常新，是其发展壮大、保持强大生命力的关键","opts":["正确","错误"],"ans":[0]},{"id":"dwj41","src":"dw","type":"judge","stem":"党组织讨论决定问题，必须执行下级服从上级的原则","opts":["正确","错误"],"ans":[1],"exp":"少数服从多数"},{"id":"dwj42","src":"dw","type":"judge","stem":"党委审批预备党员，必须集体讨论和表决。党委会审批两个以上的发展对象入党时，应当集体审议和表决","opts":["正确","错误"],"ans":[1],"exp":"逐一/逐个"},{"id":"dwj43","src":"dw","type":"judge","stem":"对外宣传的新闻、信息等已经经过“三审三校”并已发布的内容重新发布可无需通过审校直接发布","opts":["正确","错误"],"ans":[1]},{"id":"dwj44","src":"dw","type":"judge","stem":"党支部可根据“三会一课”具体内容，安排入党积极分子列席参加会议","opts":["正确","错误"],"ans":[0]},{"id":"dwj45","src":"dw","type":"judge","stem":"党章规定，预备党员的权利和义务同正式党员一样","opts":["正确","错误"],"ans":[1]},{"id":"dwj46","src":"dw","type":"judge","stem":"党员的党龄从支部大会通过他为预备党员之日算起","opts":["正确","错误"],"ans":[1],"exp":"预备期满转为正式党员"},{"id":"dwj47","src":"dw","type":"judge","stem":"党的二十大报告指出，要注重从青年、产业工人、农民、知识分子中发展党员","opts":["正确","错误"],"ans":[0]},{"id":"dwj48","src":"dw","type":"judge","stem":"党的二十大把党的初心使命、党的百年奋斗重大成就和历史经验的内容写入了党章","opts":["正确","错误"],"ans":[0]},{"id":"dwj49","src":"dw","type":"judge","stem":"党的基层组织是党在社会基层组织中的战斗堡垒","opts":["正确","错误"],"ans":[0]},{"id":"dwj50","src":"dw","type":"judge","stem":"团的全国代表大会每五年举行一次","opts":["正确","错误"],"ans":[0]},{"id":"dwj51","src":"dw","type":"judge","stem":"共青团中央对基层团委的最高综合性奖励称号是全国先进红旗团委","opts":["正确","错误"],"ans":[1],"exp":"全国五四红旗团委"},{"id":"dwj52","src":"dw","type":"judge","stem":"民主集中制是共青团根本的组织原则","opts":["正确","错误"],"ans":[0]},{"id":"dwj53","src":"dw","type":"judge","stem":"团员没有正当理由，连续（　）不交纳团费、不过团的组织生活，均被认为是自行脱团","opts":["正确","错误"],"ans":[0]},{"id":"dwj54","src":"dw","type":"judge","stem":"“推优工作”是指推选优秀团员做党的发展对象","opts":["正确","错误"],"ans":[0]},{"id":"dwj55","src":"dw","type":"judge","stem":"党组织认为必要可以剥夺党员的表决权、选举权和被选举权","opts":["正确","错误"],"ans":[1]},{"id":"dwj56","src":"dw","type":"judge","stem":"职务高的党员，可以不编入党的一个支部、小组或其他特定组织","opts":["正确","错误"],"ans":[1]},{"id":"dwj57","src":"dw","type":"judge","stem":"共青团的地方各级组织受同级党的委员会领导，同时受共青团上级组织领导","opts":["正确","错误"],"ans":[0]},{"id":"dwj58","src":"dw","type":"judge","stem":"领导干部因私出国(境) 是属于个人事情，不需要向党组织报告","opts":["正确","错误"],"ans":[1]},{"id":"dwj59","src":"dw","type":"judge","stem":"党组织和党员必须自觉遵守党章，严格执行和维护党的纪律，自觉接受党的纪律约束，模范遵守国家法律法规","opts":["正确","错误"],"ans":[0]},{"id":"dwj60","src":"dw","type":"judge","stem":"党的下级组织必须坚决执行上级组织的决定","opts":["正确","错误"],"ans":[0]},{"id":"ghs1","src":"gh","type":"single","stem":"根据《中华人民共和国工会法》，工会是中国共产党领导的职工自愿结合的（　）组织。","opts":["政治","工人阶级群众","社会","经济"],"ans":[1]},{"id":"ghs2","src":"gh","type":"single","stem":"《工会法》规定，维护职工合法权益、（　）是工会的基本职责。","opts":["竭诚服务职工群众","组织职工参与民主管理","推动产业工人队伍建设改革","协助人民政府开展工作"],"ans":[0]},{"id":"ghs3","src":"gh","type":"single","stem":"在中国境内的企业、事业单位、机关、社会组织中，以（　）为主要生活来源的劳动者，都有依法参加和组织工会的权利。","opts":["投资收益","工资收入","经营收入","劳务报酬"],"ans":[1]},{"id":"ghs4","src":"gh","type":"single","stem":"根据《工会法》，工会各级组织按照（　）原则建立。","opts":["集中统一","民主集中制","首长负责制","委员会制"],"ans":[1]},{"id":"ghs5","src":"gh","type":"single","stem":"用人单位有会员（　）人以上的，应当建立基层工会委员会。","opts":["10","25","50","100"],"ans":[1]},{"id":"ghs6","src":"gh","type":"single","stem":"基层工会委员会每届任期（　）。","opts":["三年","三年或者五年","五年","两年"],"ans":[1]},{"id":"ghs7","src":"gh","type":"single","stem":"工会主席、副主席任期未满时，因工作需要调动，应当征得（　）的同意。","opts":["本级工会委员会和上一级工会","同级党组织","行政负责人","会员大会"],"ans":[0]},{"id":"ghs8","src":"gh","type":"single","stem":"会员没有正当理由连续（　）不交纳会费、不参加工会组织生活，经教育拒不改正，应当视为自动退会。","opts":["三个月","六个月","一年","两年"],"ans":[1]},{"id":"ghs9","src":"gh","type":"single","stem":"习近平总书记在庆祝中华全国总工会成立100周年大会上指出，100年来党的工运事业理论创新和实践发展的最重要成果，就是形成了（　）。","opts":["中国特色社会主义工会发展道路","新时代工运理论","全心全意依靠工人阶级方针","工会改革总体方案"],"ans":[0]},{"id":"ghs10","src":"gh","type":"single","stem":"习近平总书记强调，党的中心任务就是我国工人运动的（　）。","opts":["根本遵循","时代主题","行动指南","核心目标"],"ans":[1]},{"id":"ghs11","src":"gh","type":"single","stem":"根据《中建七局工会工作管理办法》，局属各级工会组织要在（　）的双重领导下开展工作。","opts":["同级党组织和上级工会","同级行政和上级工会","同级党组织和同级行政","上级党组织和上级工会"],"ans":[0]},{"id":"ghs12","src":"gh","type":"single","stem":"工会主席出现空缺，须按民主程序在（　）内进行补选。","opts":["1个月","3个月","6个月","一年"],"ans":[2]},{"id":"ghs13","src":"gh","type":"single","stem":"会员大会或会员代表大会与职工代表大会或职工大会须分别行使职权，（　）。","opts":["可以相互替代","应相互替代","不得相互替代","不得替代"],"ans":[2]},{"id":"ghs14","src":"gh","type":"single","stem":"职工（　）人以上的企业工会依法配备专职工会主席。","opts":["100","200","300","500"],"ans":[1]},{"id":"ghs15","src":"gh","type":"single","stem":"企业民主管理的基本形式是（　）。","opts":["厂务公开","职工董事制度","职工代表大会(职工大会)","集体协商"],"ans":[2]},{"id":"ghs16","src":"gh","type":"single","stem":"文体活动奖励应以（　）。","opts":["物质激励为主","精神鼓励为主","物质激励为主、精神鼓励为辅","精神鼓励为主、物质激励为辅"],"ans":[3]},{"id":"ghs17","src":"gh","type":"single","stem":"根据《中建七局建装公司劳动和技能竞赛管理办法》规定，单次劳动竞赛奖金超过（　）的竞赛方案须报公司竞赛组委会审批。","opts":["5万元","8万元","10万元","15万元"],"ans":[2]},{"id":"ghs18","src":"gh","type":"single","stem":"职代会的职工代表中，企业中层以上管理人员和领导人员一般不得超过职工代表总人数的（　）。","opts":["10%","20%","30%","35%"],"ans":[1]},{"id":"ghs19","src":"gh","type":"single","stem":"职工代表大会每届任期为（　）。","opts":["1-3年","3-5年","5年","与工会委员会任期一致"],"ans":[1]},{"id":"ghs20","src":"gh","type":"single","stem":"根据《中建七局建装公司劳动和技能竞赛管理办法》规定，项目劳动竞赛奖励资金可按照劳动竞赛期间人工费（　）比例计提，完成竞赛目标任务获得奖励，按竞赛占比权重进行奖励，奖金计入项目责任成本，分配方案依据税法相关规定合法纳税。","opts":["0.5%","1%","2%","5%"],"ans":[1]},{"id":"ghs21","src":"gh","type":"single","stem":"基层工会经费收支管理应遵循的原则不包括（　）。","opts":["经费独立原则","预算管理原则","服务职工原则","行政主导原则"],"ans":[3]},{"id":"ghs22","src":"gh","type":"single","stem":"工会会员依照全国总工会规定按本人工资收入的（　）向所在基层工会缴纳会费。","opts":["0.5%","1%","2%","5%"],"ans":[0]},{"id":"ghs23","src":"gh","type":"single","stem":"建立工会组织的单位依法按全部职工工资总额的（　）向工会拨缴经费。","opts":["1%","2%","3%","5%"],"ans":[1]},{"id":"ghs24","src":"gh","type":"single","stem":"根据《河南省基层工会经费收支管理实施办法》和公司有关规定，基层工会逢年过节可以向全体会员发放节日慰问品，每位会员年度节日慰问品总额最高不得超过（　）元。","opts":["1000","1500","2000","2500"],"ans":[3]},{"id":"ghs25","src":"gh","type":"single","stem":"开展安康杯竞赛要坚持（　）的安全理念，以预防遏制生产安全事故和控制职业病危害为重点。","opts":["人民至上、生命至上","以人为本","安全运营","健康发展"],"ans":[0]},{"id":"ghs26","src":"gh","type":"single","stem":"工会会员（　）制定或者修改《中国工会章程》，章程不得与宪法和法律相抵触。","opts":["代表大会","全国代表大会","全体代表","全国大会"],"ans":[1]},{"id":"ghs27","src":"gh","type":"single","stem":"我国的劳动保护方针是（　）？","opts":["安全第一，预防为主","领导重视，奖惩分明","安全第一，奖惩分明","领导重视，预防为主"],"ans":[0]},{"id":"ghs28","src":"gh","type":"single","stem":"基层工会开展文体活动，对不设置奖项的，可为参与职工发放价值不超过（　）元的纪念品。","opts":["50","100","200","300"],"ans":[1]},{"id":"ghs29","src":"gh","type":"single","stem":"文体活动设置奖项的，个人奖励最高不得超过（　）元。","opts":["300","400","500","800"],"ans":[1]},{"id":"ghs30","src":"gh","type":"single","stem":"中国工会以宪法为根本活动准则，按照《中华人民共和国工会法》和（　），独立自主地开展工作，依法行使权利和履行义务。","opts":["《中华人民共和国宪法》","《中华人民共和国劳动法》","《中国工会章程》","《中华人民共和国民法通则》"],"ans":[2]},{"id":"ghs31","src":"gh","type":"single","stem":"根据《工会法》，工会通过（　）等，推动健全劳动关系协调机制。","opts":["行政命令","平等协商和集体合同制度","职工个人谈判","劳动争议仲裁"],"ans":[1]},{"id":"ghs32","src":"gh","type":"single","stem":"罢免工会主席、副主席必须召开会员大会或者会员代表大会讨论，非经（　）通过，不得罢免。","opts":["全体会员过半数","到会会员过半数","全体会员或全体代表过半数","到会会员或代表过半数"],"ans":[2]},{"id":"ghs33","src":"gh","type":"single","stem":"《中国工会章程》规定，中国工会以（　）为根本活动准则。","opts":["中国共产党章程","宪法","工会法","劳动法"],"ans":[1]},{"id":"ghs34","src":"gh","type":"single","stem":"习近平总书记在讲话中指出，要大力弘扬（　），这是社会主义核心价值观的生动体现。","opts":["爱国主义精神","改革创新精神","劳模精神、劳动精神、工匠精神","团结奋斗精神"],"ans":[2]},{"id":"ghs35","src":"gh","type":"single","stem":"《中建七局工会工作管理办法》规定，工会经费、会费主要用于（　）。","opts":["行政开支","为职工服务和工会活动","投资理财","发放干部补贴"],"ans":[1]},{"id":"ghs36","src":"gh","type":"single","stem":"企业改制必须同时（　）工会组织。","opts":["撤销","合并","建立健全","调整"],"ans":[2]},{"id":"ghs37","src":"gh","type":"single","stem":"根据《中建七局企业民主管理实施细则》，职代会行使（　）权，对涉及职工切身利益的重大事项进行投票表决。","opts":["审议建议","审议通过","监督评议","民主选举"],"ans":[1]},{"id":"ghs38","src":"gh","type":"single","stem":"职工代表调出企业或与企业终止、解除劳动关系，其代表资格（　）。","opts":["保留","暂停","即行终止","需经批准后终止"],"ans":[2]},{"id":"ghs39","src":"gh","type":"single","stem":"《中国工会章程》规定，工会的最高领导机关，是（　）。","opts":["中华全国总工会","中华全国总工会执行委员会","工会的全国代表大会和它所产生的中华全国总工会执行委员会","中华全国总工会书记处"],"ans":[2]},{"id":"ghs40","src":"gh","type":"single","stem":"职工董事的任期与公司其他董事的任期相同，可以（　）。","opts":["连任一届","连选连任","任期五年","由董事会决定"],"ans":[1]},{"id":"ghs41","src":"gh","type":"single","stem":"某企业工会有会员88人，进行换届选举时至少有（　）人到会，方可进行选举？被选举人至少得到（　）张赞成票，才可能当选？","opts":["60，31","59，45","58，45","59，44"],"ans":[1]},{"id":"ghs42","src":"gh","type":"single","stem":"工会会员生病住院，可以给予不超过（　）元的慰问金(慰问品)。","opts":["500","800","1000","2000"],"ans":[2]},{"id":"ghs43","src":"gh","type":"single","stem":"工会会员去世时，可以给予不超过（　）元的慰问金。","opts":["1000","2000","3000","5000"],"ans":[1]},{"id":"ghs44","src":"gh","type":"single","stem":"基层工会开展职工教育活动，对优秀学员的奖励范围控制在学员总数的（　）以内。","opts":["5%","10%","15%","20%"],"ans":[1]},{"id":"ghs45","src":"gh","type":"single","stem":"基层工会自身健身设施设备不能满足职工会员需求的，可为职工会员购买健身服务，但不得以（　）的形式发放。","opts":["次卡","健身卡、预付卡","团体课程","租赁设备"],"ans":[1]},{"id":"ghs46","src":"gh","type":"single","stem":"根据《工会法》，工会代表职工与企业进行平等协商，依法签订（　）。","opts":["劳动合同","集体合同","合作协议","聘用合同"],"ans":[1]},{"id":"ghs47","src":"gh","type":"single","stem":"工会发现企业违章指挥、强令工人冒险作业，或者生产过程中发现明显重大事故隐患和职业危害，有权（　）。","opts":["直接处罚企业","提出解决的建议","命令职工停工","向政府举报"],"ans":[1]},{"id":"ghs48","src":"gh","type":"single","stem":"《中国工会章程》规定，会员有（　）的自由。","opts":["罢工","退会","不交会费","不参加活动"],"ans":[1]},{"id":"ghs49","src":"gh","type":"single","stem":"习近平总书记指出，要造就一支（　）的宏大产业工人队伍。","opts":["有理想守信念、懂技术会创新、敢担当讲奉献","知识型、技能型、创新型","政治坚定、业务精通、作风过硬","爱岗敬业、争创一流"],"ans":[0]},{"id":"ghs50","src":"gh","type":"single","stem":"《中建七局工会工作管理办法》中“六有工会”建设不包括（　）。","opts":["有依法选举的工会主席","有独立健全的组织机构","有充足的行政拨款","有会员满意的工作绩效"],"ans":[2]},{"id":"ghs51","src":"gh","type":"single","stem":"工会经费审查委员会负责审查监督（　）。","opts":["工会工作","工会经费收支","职工代表选举","企业生产经营"],"ans":[1]},{"id":"ghs52","src":"gh","type":"single","stem":"根据《中建七局企业民主管理实施细则》，职代会每年至少召开（　）次会议。","opts":["一","两","三","四"],"ans":[0]},{"id":"ghs53","src":"gh","type":"single","stem":"每次职代会会议必须有全体职工代表的（　）以上出席方可召开。","opts":["三分之一","二分之一","三分之二","四分之三"],"ans":[2]},{"id":"ghs54","src":"gh","type":"single","stem":"职工董事因患病、岗位变动等原因不能履行职责的，由（　）审议，终止其任职资格。","opts":["董事会","党委会","职代会","工会委员会"],"ans":[2]},{"id":"ghs55","src":"gh","type":"single","stem":"某公司工会委员会1月8日进行换届选举，选举出主席、副主席和工会委员，1月9日上报上一级工会，1月20日得到批复，该届工会的任期起始时间是（　）。","opts":["1月8日","1月9日","1月20日","1月24日"],"ans":[0]},{"id":"ghs56","src":"gh","type":"single","stem":"基层工会主席对基层工会会计工作和会计资料的（　）负责。","opts":["合法性","真实性、完整性","合规性","有效性"],"ans":[1]},{"id":"ghs57","src":"gh","type":"single","stem":"根据《工会法》，工会适应企业组织形式、职工队伍结构、劳动关系、就业形态等方面的发展变化，依法维护劳动者（　）的权利。","opts":["获得劳动报酬","参加和组织工会","休息休假","职业技能培训"],"ans":[1]},{"id":"ghs58","src":"gh","type":"single","stem":"女职工人数较多的，可以建立工会女职工委员会，在（　）领导下开展工作。","opts":["同级工会","上级女职工委员会","同级党组织","企业行政"],"ans":[0]},{"id":"ghs59","src":"gh","type":"single","stem":"习近平总书记在讲话中强调，不论时代条件和社会群体怎样发展变化，我国工人阶级的地位和作用不容动摇，（　）的根本方针不容动摇。","opts":["以人民为中心","全心全意依靠工人阶级","工会独立自主开展工作","发展全过程人民民主"],"ans":[1]},{"id":"ghs60","src":"gh","type":"single","stem":"《中建七局工会工作管理办法》规定，工会专职工作人员人数在企业党委领导下，由工会根据企业实际情况参照职工总数（　）的比例与所在单位协商确定。","opts":["千分之一","千分之三","千分之五","百分之一"],"ans":[1]},{"id":"ghs61","src":"gh","type":"single","stem":"企业工会委员会是（　）的常设机构。","opts":["工会代表大会","会员大会或者会员代表大会","职工代表大会","党委会"],"ans":[1]},{"id":"ghs62","src":"gh","type":"single","stem":"根据《中建七局企业民主管理实施细则》，职代会主席团成员中，工人、技术人员、管理人员不少于（　）。","opts":["30%","40%","50%","60%"],"ans":[2]},{"id":"ghs63","src":"gh","type":"single","stem":"职工代表大会闭会期间，遇有重大事项，可由企业行政、工会或（　）以上职工代表联名提议，召开职代会临时会议。","opts":["五分之一","四分之一","三分之一","二分之一"],"ans":[2]},{"id":"ghs64","src":"gh","type":"single","stem":"工会的权利不是行政权、不是司法权，而是民主意义上、社会意义上法定的（　）和监督权。","opts":["参与权","保障权","行使权","建议权"],"ans":[0]},{"id":"ghs65","src":"gh","type":"single","stem":"基层工会开展文体活动，外聘的裁判员、评委、教练的劳务费支付标准为每半天不超过（　）元。","opts":["300","400","500","600"],"ans":[1]},{"id":"ghs66","src":"gh","type":"single","stem":"基层工会“六一”儿童节慰问支出，必须（　），慰问范围必须是参加活动并且有14周岁以下儿童的职工。","opts":["发放现金","组织活动","购买礼品","发放购物卡"],"ans":[1]},{"id":"ghs67","src":"gh","type":"single","stem":"根据《工会法》，工会会员全国代表大会制定或者修改（　）。","opts":["《中华人民共和国工会法》","《中国工会章程》","《企业工会工作条例》","《工会选举办法》"],"ans":[1]},{"id":"ghs68","src":"gh","type":"single","stem":"基层工会组织具备民法典规定的法人条件的，依法取得（　）资格。","opts":["企业法人","机关法人","社会团体法人","事业单位法人"],"ans":[2]},{"id":"ghs69","src":"gh","type":"single","stem":"《中国工会章程》规定，中国工会坚持自觉接受中国共产党的领导，承担团结引导职工群众（　）的政治责任。","opts":["听党话、跟党走","爱岗敬业","维护稳定","促进发展"],"ans":[0]},{"id":"ghs70","src":"gh","type":"single","stem":"习近平总书记指出，要健全以（　）为基本形式的企事业单位民主管理制度。","opts":["厂务公开","职工董事制度","职工代表大会","集体协商"],"ans":[2]},{"id":"ghs71","src":"gh","type":"single","stem":"用人单位自（　）起即与劳动者建立劳动关系。","opts":["用工之日","签订合同之日","劳动者领取工资之日"],"ans":[0]},{"id":"ghs72","src":"gh","type":"single","stem":"工会经费、资产和国家及企业、事业单位等拨给工会的不动产和拨付资金形成的资产受法律保护，任何单位和个人不得（　）。","opts":["使用","侵占、挪用和任意调拨","审计","监督"],"ans":[1]},{"id":"ghs73","src":"gh","type":"single","stem":"根据《中建七局企业民主管理实施细则》，凡提交职代会审议、讨论、表决的有关事项，应在正式会议召开前至少提前（　）天发给职工代表征求意见。","opts":["3","5","7","10"],"ans":[2]},{"id":"ghs74","src":"gh","type":"single","stem":"直接涉及劳动者切身利益的规章制度和重大事项决定实施过程中，工会或者职工认为不适当的，有权（　）","opts":["不遵照执行","宣布废止","向用人单位提出，通过协商予以修改完善"],"ans":[2]},{"id":"ghs75","src":"gh","type":"single","stem":"基层工会经费年度收支预算需经同级工会经费审查委员会审查和（　）批准。","opts":["上级工会","同级工会委员会","单位行政","党组织"],"ans":[1]},{"id":"ghs76","src":"gh","type":"single","stem":"工会会员结婚，可以给予不超过（　）元的慰问品。","opts":["300","500","800","1000"],"ans":[1]},{"id":"ghs77","src":"gh","type":"single","stem":"基层工会举办文体活动，团体奖励人均不得超过（　）元。","opts":["200","300","400","500"],"ans":[1]},{"id":"ghs78","src":"gh","type":"single","stem":"根据《工会法》，企业单方面解除职工劳动合同时，应当事先将理由通知（　）。","opts":["劳动行政部门","工会","职工本人","法院"],"ans":[1]},{"id":"ghs79","src":"gh","type":"single","stem":"用人单位不得因女职工怀孕、生育、哺乳（　）、予以辞退、与其（　）。","opts":["降低其工资，解除劳动或者聘用合同","扣发其工资，解除劳动合同","扣发工资，解除聘用合同","降低其工资，解除劳动合同"],"ans":[0]},{"id":"ghs80","src":"gh","type":"single","stem":"习近平总书记在讲话中指出，要着眼推进（　），稳步增进广大职工和劳动群众福祉。","opts":["高质量发展","共同富裕","中国式现代化","产业工人队伍建设改革"],"ans":[1]},{"id":"ghs81","src":"gh","type":"single","stem":"《中建七局工会工作管理办法》规定，工会主席候选人应由（　）在充分听取会员意见的基础上协商提名。","opts":["同级党组织和上级工会","企业行政和上级工会","会员代表大会","职工代表大会"],"ans":[0]},{"id":"ghs82","src":"gh","type":"single","stem":"工会主席按企业党政（　）职级条件配备。","opts":["同级正职","同级副职","中层正职","中层副职"],"ans":[1]},{"id":"ghs83","src":"gh","type":"single","stem":"根据《中建七局企业民主管理实施细则》，职代会行使（　）权，民主评议企业领导班子及成员、职工董事。","opts":["审议建议","审议通过","监督评议","民主选举"],"ans":[2]},{"id":"ghs84","src":"gh","type":"single","stem":"职工代表出现缺额时应由（　）按相应条件、构成要求及选举程序及时补选产生。","opts":["上级工会指定","原选举单位","工会委员会","党组织推荐"],"ans":[1]},{"id":"ghs85","src":"gh","type":"single","stem":"依据《女职工劳动保护特别规定》，怀孕女职工在劳动时间内进行产前检查，所需时间计入（　）。","opts":["病假","事假","年休假","劳动时间"],"ans":[3]},{"id":"ghs86","src":"gh","type":"single","stem":"企业工会受法律保护，任何（　）不得随意撤销或将工会工作机构合并、归属到其他部门。","opts":["组织","个人","组织和个人","单位和组织"],"ans":[2]},{"id":"ghs87","src":"gh","type":"single","stem":"工会会员直系亲属(限于配偶、父母、子女)去世时，可以给予不超过（　）元的慰问金。","opts":["500","1000","1500","2000"],"ans":[1]},{"id":"ghs88","src":"gh","type":"single","stem":"劳动和技能竞赛活动支出属于（　）。","opts":["业务支出","职工服务支出","职工活动支出","维权支出"],"ans":[1]},{"id":"ghs89","src":"gh","type":"single","stem":"根据《工会法》，工会帮助、指导职工与企业签订（　）。","opts":["集体合同","劳动合同","合作协议","聘用协议"],"ans":[1]},{"id":"ghs90","src":"gh","type":"single","stem":"工会依照法律规定通过职工代表大会或者其他形式，组织职工参与本单位的民主选举、民主协商、民主决策、民主管理和（　）。","opts":["民主监督","民主评议","民主测评","民主推荐"],"ans":[0]},{"id":"ghs91","src":"gh","type":"single","stem":"《中国工会章程》规定，会员有（　）的权利，要求撤换或者罢免不称职的工会工作人员。","opts":["选举权","被选举权","表决权","监督权"],"ans":[3]},{"id":"ghs92","src":"gh","type":"single","stem":"习近平总书记强调，要深化（　）改革，不断增强引领力、组织力、服务力。","opts":["经济体制","政治体制","工会改革和建设","产业工人队伍建设"],"ans":[2]},{"id":"ghs93","src":"gh","type":"single","stem":"送温暖支出属于（　）。","opts":["维权支出","职工活动支出","业务支出","职工服务支出"],"ans":[0]},{"id":"ghs94","src":"gh","type":"single","stem":"企业讨论职工切身利益安全问题，（　）有工会代表参加。","opts":["必须","可以","不需要"],"ans":[0]},{"id":"ghs95","src":"gh","type":"single","stem":"根据《中建七局企业民主管理实施细则》，职代会提案承办时限自交办之日起到答复意见的提出，一般不超过（　）个工作日。","opts":["15","30","45","60"],"ans":[1]},{"id":"ghs96","src":"gh","type":"single","stem":"工会发现重大隐患有权提建议，企业应当及时（　）。","opts":["采取措施处理","研究答复","整改"],"ans":[1]},{"id":"ghs97","src":"gh","type":"single","stem":"根据《河南省基层工会经费收支管理实施办法》，基层工会逢年过节的年节是指国家规定的法定节日，共（　）个。","opts":["5","6","7","8"],"ans":[2]},{"id":"ghs98","src":"gh","type":"single","stem":"基层工会开展职工教育活动中，对优秀学员的奖励标准每人不超过（　）元。","opts":["200","300","400","500"],"ans":[1]},{"id":"ghs99","src":"gh","type":"single","stem":"基层工会会员代表大会代表选举差额率不得低于（　）。","opts":["10%","15%","20%","25%"],"ans":[1]},{"id":"ghs100","src":"gh","type":"single","stem":"《中国工会章程》规定，中国工会实行（　）的组织领导原则。","opts":["垂直领导","产业和地方相结合","双重领导","属地管理"],"ans":[1]},{"id":"ghm1","src":"gh","type":"multi","stem":"根据《中华人民共和国工会法》，工会必须遵守和维护宪法，以宪法为根本的活动准则，坚持（　），保持和增强政治性、先进性、群众性。","opts":["社会主义道路","人民民主专政","中国共产党的领导","马克思列宁主义、毛泽东思想、邓小平理论、“三个代表”重要思想、科学发展观、习近平新时代中国特色社会主义思想","改革开放"],"ans":[0,1,2,3,4]},{"id":"ghm2","src":"gh","type":"multi","stem":"根据《中国工会章程》，工会会员享有的以下民主权利中哪些属于政治权利？（　）","opts":["选举权","被选举权","表决权","监督权"],"ans":[0,1,2]},{"id":"ghm3","src":"gh","type":"multi","stem":"工会通过（　）等，推动健全劳动关系协调机制，维护职工劳动权益。","opts":["行政命令","平等协商","集体合同制度","劳动争议调解"],"ans":[1,2]},{"id":"ghm4","src":"gh","type":"multi","stem":"根据《工会法》，工会的权利包括（　）。","opts":["要求纠正违反职工代表大会制度的行为","帮助、指导职工签订劳动合同","代表职工进行平等协商，签订集体合同","对企业侵犯职工劳动权益的问题进行调查","参与职工因工伤亡事故的调查处理"],"ans":[0,1,2,3,4]},{"id":"ghm5","src":"gh","type":"multi","stem":"《中国工会章程》规定，会员享有以下权利:（　）。","opts":["选举权、被选举权和表决权","对工会工作进行监督，提出意见和建议","在合法权益受到侵犯时，要求工会给予保护","享受工会提供的文化、教育、体育等优惠待遇","参加关于工会工作和职工关心问题的讨论"],"ans":[0,1,2,3,4]},{"id":"ghm6","src":"gh","type":"multi","stem":"习近平总书记在庆祝中华全国总工会成立100周年大会上指出，中国特色社会主义工会发展道路坚持（　）。","opts":["党对工运事业和工会工作的全面领导","全心全意依靠工人阶级的根本方针","服从和服务于党的中心任务","工会组织的政治性、先进性、群众性","以服务职工群众为生命线","依法依章程开展工作"],"ans":[0,1,2,3,4,5]},{"id":"ghm7","src":"gh","type":"multi","stem":"习近平总书记强调，新时代新征程，必须进一步动员激励我国工人阶级和广大劳动群众，为以中国式现代化全面推进强国建设、民族复兴伟业作出新的更大贡献，要（　）。","opts":["聚焦推动高质量发展，动员激励广大职工和劳动群众建功立业、创新创造","顺应新一轮科技革命和产业变革，全面提升劳动者素质","深入践行社会主义核心价值观，大力弘扬劳模精神、劳动精神、工匠精神","着眼推进共同富裕，稳步增进广大职工和劳动群众福祉"],"ans":[0,1,2,3]},{"id":"ghm8","src":"gh","type":"multi","stem":"根据《中建七局工会工作管理办法》，工会工作的基本原则包括（　）。","opts":["坚持党对工运事业和工会工作的全面领导","坚持全心全意依靠工人阶级的根本方针","坚持中国特色社会主义工会发展道路","坚持分级管理原则"],"ans":[0,1,2,3]},{"id":"ghm9","src":"gh","type":"multi","stem":"工会的主要工作任务包括（　）。","opts":["组织职工依法通过职工代表大会等形式参与民主管理","参与协调劳动关系和调解劳动争议","组织职工开展劳动和技能竞赛等群众性经济技术创新活动","组织培养、评选、表彰劳动模范、企业工匠","加强职工的政治引领和思想教育","开展困难职工帮扶工作"],"ans":[0,1,2,3,4,5]},{"id":"ghm10","src":"gh","type":"multi","stem":"基层工会召开会员大会或会员代表大会选举时，应表决通过的事项有。（　）","opts":["候选人建议名单","选举办法","选举的监票人","选举的计票人"],"ans":[0,1,2]},{"id":"ghm11","src":"gh","type":"multi","stem":"根据全总要求，各级工会要大力推进（　）“三种精神”落地生根。","opts":["劳模精神","劳动精神","工匠精神","创业精神"],"ans":[0,1,2]},{"id":"ghm12","src":"gh","type":"multi","stem":"深化产业工人队伍建设改革的总体思路是（　）。","opts":["政治上保证","制度上落实","素质上提高","权益上维护"],"ans":[0,1,2,3]},{"id":"ghm13","src":"gh","type":"multi","stem":"根据《河南省基层工会经费收支管理实施办法》，基层工会经费收入包括（　）。","opts":["会费收入","拨缴经费收入","上级补助收入","行政补助收入","投资收益","其他收入"],"ans":[0,1,2,3,4,5]},{"id":"ghm14","src":"gh","type":"multi","stem":"下列属于工会维权支出的是（　）。","opts":["劳动关系协调支出","劳动保护支出","法律援助支出","健康体检支出","送温暖支出"],"ans":[0,1,2,4]},{"id":"ghm15","src":"gh","type":"multi","stem":"下列属于职工活动支出的是（　）。","opts":["职工教育支出","文体活动支出","宣传活动支出","职工书屋活动支出","会员活动支出"],"ans":[0,1,2,4]},{"id":"ghm16","src":"gh","type":"multi","stem":"根据规定，基层工会逢年过节可以向全体会员发放节日慰问品，节日慰问品原则上为（　）。","opts":["符合中国传统节日习惯的用品","职工群众必需的生活用品","现金","购物卡"],"ans":[0,1]},{"id":"ghm17","src":"gh","type":"multi","stem":"基层工会经费收支管理应遵循的原则有（　）。","opts":["遵纪守法原则","经费独立原则","预算管理原则","服务职工原则","勤俭节约原则","民主管理原则"],"ans":[0,1,2,3,4,5]},{"id":"ghm18","src":"gh","type":"multi","stem":"下列哪些属于基层工会会员代表大会的职权？（　）","opts":["听取企业主要负责人关于企业发展规划、年度生产经营管理、企业改革改制等情况汇报","审议企业有关劳动报酬、工作时间、休息休假、职工培训、劳动纪律等涉及劳动者切身利益的规章制度","选举和补选基层工会委员会、经费审查委员会组成人员","开展会员评家，评议基层工会开展工作、建设职工之家情况，评议基层工会主席、副主席履职情况"],"ans":[2,3]},{"id":"ghm19","src":"gh","type":"multi","stem":"企业、事业单位、社会组织违反劳动法律法规规定，有下列侵犯职工劳动权益情形，工会应当代表职工交涉:（　）。","opts":["克扣、拖欠职工工资的","不提供劳动安全卫生条件的","随意延长劳动时间的","侵犯女职工和未成年工特殊权益的"],"ans":[0,1,2,3]},{"id":"ghm20","src":"gh","type":"multi","stem":"《中国工会章程》规定，会员履行下列义务:（　）。","opts":["认真学习贯彻习近平新时代中国特色社会主义思想","积极参加民主管理，努力完成生产和工作任务","遵守宪法和法律，践行社会主义核心价值观","正确处理国家、集体、个人三者利益关系","维护中国工人阶级和工会组织的团结统一","遵守工会章程，执行工会决议，参加工会活动，按月交纳会费"],"ans":[0,1,2,3,4,5]},{"id":"ghm21","src":"gh","type":"multi","stem":"根据《中建七局工会工作管理办法》，工会组织建设要求包括（　）。","opts":["企业工会受法律保护，不得随意撤销或合并","会员25人以上的单位应当建立工会委员会","工会委员会由会员大会或会员代表大会差额选举产生","企业改制必须同时建立健全工会组织"],"ans":[0,1,2,3]},{"id":"ghm22","src":"gh","type":"multi","stem":"工会干部队伍建设要求按照（　）的要求，落实新时代好干部标准。","opts":["革命化","年轻化","知识化","专业化"],"ans":[0,1,2,3]},{"id":"ghm23","src":"gh","type":"multi","stem":"根据《中建七局企业民主管理实施细则》，职工代表的权利包括（　）。","opts":["选举权、被选举权和表决权","参加职代会及其工作机构组织的民主管理活动","对企业领导人员进行评议和质询","在职代会闭会期间对企业执行职代会决议情况进行监督、检查"],"ans":[0,1,2,3]},{"id":"ghm24","src":"gh","type":"multi","stem":"企业应当向职工公开的事项包括（　）。","opts":["经营管理的基本情况","年度生产经营目标及完成情况","招用职工及签订劳动合同的情况","中层领导人员、重要岗位人员的选聘和任用情况","劳动安全卫生标准、安全事故发生情况及处理结果"],"ans":[0,1,2,3,4]},{"id":"ghm25","src":"gh","type":"multi","stem":"“安康杯”竞赛是推动企业落实（　），工会维护（　）的有效载体。","opts":["安全生产主体责任","安全生产领导责任","职工安全健康权益","职工合法权益"],"ans":[0,2]},{"id":"ghm26","src":"gh","type":"multi","stem":"根据《河南省基层工会经费收支管理实施办法》，基层工会不准使用工会经费（　）。","opts":["请客送礼","从事高消费性娱乐和健身活动","报销与工会活动无关的费用","参与非法集资活动"],"ans":[0,1,2,3]},{"id":"ghm27","src":"gh","type":"multi","stem":"下列属于职工服务支出的是（　）。","opts":["劳动和技能竞赛活动支出","建家活动支出","职工创新活动支出","职工书屋活动支出","其他服务支出"],"ans":[0,1,2,3,4]},{"id":"ghm28","src":"gh","type":"multi","stem":"下列不属于维权支出的是（　）。","opts":["劳动关系协调支出","劳模职工疗休养支出","法律援助支出","困难职工帮扶支出","节日慰问支出"],"ans":[1,4]},{"id":"ghm29","src":"gh","type":"multi","stem":"根据《工会法》，工会动员和组织职工积极参加经济建设，努力完成生产任务和工作任务。教育职工不断提高（　）素质。","opts":["思想道德","技术业务","科学文化","身体素质"],"ans":[0,1,2]},{"id":"ghm30","src":"gh","type":"multi","stem":"习近平总书记在讲话中指出，我国工人阶级不愧是（　）。","opts":["中国共产党最坚实最可靠的阶级基础","我们社会主义国家的领导阶级","先进生产力和生产关系的代表","坚持和发展中国特色社会主义的主力军"],"ans":[0,1,2,3]},{"id":"ghm31","src":"gh","type":"multi","stem":"《中建七局工会工作管理办法》规定，工会经费审查委员会负责审查监督工会经费收支情况，并定期向（　）报告。","opts":["会员大会","会员代表大会","上级工会","企业行政"],"ans":[0,1]},{"id":"ghm32","src":"gh","type":"multi","stem":"女职工委员会依法维护女职工的合法权益，定期研究涉及女职工特殊权益问题，向（　）报告工作。","opts":["同级工会委员会","上级女职工委员会","企业行政","党组织"],"ans":[0,1]},{"id":"ghm33","src":"gh","type":"multi","stem":"根据《中建七局企业民主管理实施细则》，职代会提案工作委员会的职责包括（　）。","opts":["组织征集提案","对征集的提案进行分类整理，提出立案建议","将已立案的提案转有关部门承办","监督检查提案的处理、落实情况","向工会委员会、职代会报告提案处理落实情况"],"ans":[0,1,2,3,4]},{"id":"ghm34","src":"gh","type":"multi","stem":"中国工会十八大报告提出，今后五年工作要改革创新、奋发进取，保持和增强（　），持续提高引领力、组织力、服务力。","opts":["政治性","创新性","先进性","群众性"],"ans":[0,2,3]},{"id":"ghm35","src":"gh","type":"multi","stem":"下列属于业务支出的是（　）。","opts":["培训支出","会议支出","捐赠支出","资本性支出"],"ans":[0,1]},{"id":"ghm36","src":"gh","type":"multi","stem":"下列人员中谁不能作为本单位工会委员会委员候选人。（　）","opts":["某单位法定代表人的外甥女、市场部的王某某","某单位人力资源总监韩某某","某单位4个合伙人之一吴某某","某单位总经理侄子、生产部的孟某某"],"ans":[0,2,3]},{"id":"ghm37","src":"gh","type":"multi","stem":"基层工会组织会员开展春游秋游，开支范围包含（　）。","opts":["城市间交通费","租车费","住宿费、伙食费","门票、活动用品"],"ans":[0,1,2,3]},{"id":"ghm38","src":"gh","type":"multi","stem":"根据《工会法》，工会应当建立联系广泛、服务职工的工会工作体系，（　）。","opts":["密切联系职工","听取和反映职工的意见和要求","关心职工的生活","帮助职工解决困难","全心全意为职工服务"],"ans":[0,1,2,3,4]},{"id":"ghm39","src":"gh","type":"multi","stem":"《中国工会章程》规定，中国工会以忠诚党的事业、竭诚服务职工为己任，坚持（　）的工作方针。","opts":["组织起来","切实维权","服务大局","促进和谐"],"ans":[0,1]},{"id":"ghm40","src":"gh","type":"multi","stem":"习近平总书记强调，各级工会要全面贯彻落实党中央决策部署，推动工会工作高质量发展，要（　）。","opts":["坚持正确政治方向，把广大职工和劳动群众紧紧团结在党的周围","坚持以职工为中心的工作导向，竭诚服务职工群众、促进职工全面发展","深化工会改革和建设，不断增强引领力、组织力、服务力"],"ans":[0,1,2]},{"id":"ghm41","src":"gh","type":"multi","stem":"基层工会委员会委员具有哪些情形的，可以罢免。（　）","opts":["连续两年测评等次为不满意的","任职期间个人有严重过失的","被依法追究刑事责任的","同级党组织认为不称职的"],"ans":[1,2]},{"id":"ghm42","src":"gh","type":"multi","stem":"用人单位不得因女职工结婚、怀孕、休产假、哺乳等原因内容，（　）","opts":["降低女职工的工资、福利待遇","限制女职工晋职、晋级、评聘专业技术职务","辞退女职工","单方面解除劳动(聘用)合同"],"ans":[0,1,2,3]},{"id":"ghm43","src":"gh","type":"multi","stem":"根据《中建七局企业民主管理实施细则》，企业民主管理的原则包括（　）。","opts":["坚持党的全面领导","坚持依法依规建设","坚持创新发展理念","坚持协同联动推进"],"ans":[0,1,2,3]},{"id":"ghm44","src":"gh","type":"multi","stem":"对哺乳未满1周岁婴儿的女职工下列说法正确的是（　）","opts":["不得安排其从事国家规定的哺乳期禁忌从事的劳动，暂时安排其他合适工作；","不得延长劳动时间或者安排夜班劳动；","在每天劳动时间内安排1小时哺乳时间；生育多胞胎的，每多哺乳1个婴儿每天增加1小时哺乳时间","女职工根据需要可以自行申请延长哺乳时间"],"ans":[0,1,2]},{"id":"ghm45","src":"gh","type":"multi","stem":"根据《河南省基层工会经费收支管理实施办法》，以下哪些支出应由单位行政负担，不得使用工会经费？（　）","opts":["职工体检","职工食堂","离退休人员的集体福利","行政表彰","走访慰问离退休干部职工"],"ans":[0,1,2,3,4]},{"id":"ghm46","src":"gh","type":"multi","stem":"基层工会为规范财务管理，在举办活动时应注意（　）。","opts":["活动项目要有具体方案和通知","购物发票要写明具体品名、数量、单价及附购物清单","报销单据应附上所有参与人员名单","奖金、物品发放要有签领单","用餐要有用餐人员名单"],"ans":[0,1,2,3,4]},{"id":"ghm47","src":"gh","type":"multi","stem":"根据《中建七局工会工作管理办法》，深化产业工人队伍建设改革的目标是培养造就更多（　）的产业工人队伍。","opts":["有理想守信念","懂技术会创新","敢担当讲奉献","高学历高收入"],"ans":[0,1,2]},{"id":"ghm48","src":"gh","type":"multi","stem":"基层工会可以用会员会费组织会员开展的活动包括（　）。","opts":["观看电影、文艺演出","开展春游秋游","为会员购买当地公园年票","发放节日慰问品"],"ans":[0,1,2]},{"id":"ghm49","src":"gh","type":"multi","stem":"根据《中建七局企业民主管理实施细则》，职代会联席会议可以由（　）组成。","opts":["职工代表团(组)长","职代会专门委员会(小组)负责人","主席团成员","工会委员会委员"],"ans":[0,1,2,3]},{"id":"ghm50","src":"gh","type":"multi","stem":"下列哪些费用属于职工教育支出范围？（　）","opts":["培训的教材资料、教学用品费","培训场地租金","聘请授课人员的酬金","优秀学员的奖励"],"ans":[0,1,2,3]},{"id":"ghm51","src":"gh","type":"multi","stem":"习近平总书记在讲话中指出，要动员激励广大职工和劳动群众（　）。","opts":["建功立业","创新创造","提升素质","促进和谐"],"ans":[0,1]},{"id":"ghm52","src":"gh","type":"multi","stem":"《中建七局工会工作管理办法》规定，工会应协助和督促企业做好（　）等方面的工作。","opts":["工资","安全生产","职业病防治","社会保险"],"ans":[0,1,2,3]},{"id":"ghm53","src":"gh","type":"multi","stem":"根据《中建七局企业民主管理实施细则》，提案工作委员会对收到的提案，凡属于（　）的一律不予立案。","opts":["涉及民事纠纷或进入刑事、行政诉讼以及仲裁程序的","为本人或亲属解决个人问题的","内容空泛、建议笼统的","属于揭发和举报问题的"],"ans":[0,1,2,3]},{"id":"ghm54","src":"gh","type":"multi","stem":"基层工会经费审查委员会负责审查（　）。","opts":["工会经费收支情况","工会资产管理情况","工会工作计划","工会主席履职情况"],"ans":[0,1]},{"id":"ghm55","src":"gh","type":"multi","stem":"根据《中建七局工会工作管理办法》，工会工作的主要任务包括（　）。","opts":["加强职工的政治引领和思想教育","开展困难职工帮扶","做好员工健康管理","收好、管好、用好工会经费"],"ans":[0,1,2,3]},{"id":"ghm56","src":"gh","type":"multi","stem":"职工代表大会行使审议建议权，听取和审议的报告或方案包括（　）。","opts":["企业投资和重大技术改造报告","财务预决算报告","企业业务招待费使用情况报告","提案征集处理落实情况报告"],"ans":[0,1,2,3]},{"id":"ghm57","src":"gh","type":"multi","stem":"工会对违反《工会法》规定，侵犯其合法权益的行为，有权（　）。","opts":["提请人民政府予以处理","向人民法院提起诉讼","要求相关部门予以纠正","组织职工罢工抗议"],"ans":[0,1,2]},{"id":"ghm58","src":"gh","type":"multi","stem":"中国工会坚持（　）的有机统一，促进社会主义民主政治建设。","opts":["党的领导","人民当家作主","依法治国","工会独立"],"ans":[0,1,2]},{"id":"ghm59","src":"gh","type":"multi","stem":"《中建七局工会工作管理办法》中，工会与企业党政和上级工会的关系是（　）。","opts":["工会接受同级党组织和上级工会双重领导","以同级党组织领导为主","各级行政应支持工会履行职责","上级工会负有对下级工会指导和服务的职责"],"ans":[0,1,2,3]},{"id":"ghm60","src":"gh","type":"multi","stem":"根据《中建七局企业民主管理实施细则》，企业实行厂务公开应当保守（　）。","opts":["企业商业秘密","职工个人隐私","与知识产权相关的保密事项","所有会议内容"],"ans":[0,2]},{"id":"ghm61","src":"gh","type":"multi","stem":"根据《河南省基层工会经费收支管理实施办法》，基层工会为职工开展（　）服务，必须履行集体决策程序，不得直接发放补贴。","opts":["子女托管","子女托育","老人照料","家政服务"],"ans":[0,1]},{"id":"ghm62","src":"gh","type":"multi","stem":"基层工会“不准”的行为包括（　）。","opts":["使用工会经费请客送礼","违反规定滥发津贴补贴","截留、挪用工会经费","用工会经费报销与工会活动无关的费用"],"ans":[0,1,2,3]},{"id":"ghm63","src":"gh","type":"multi","stem":"各级工会对监督检查中发现违反基层工会经费收支管理办法的问题，处理方式包括（　）。","opts":["限期整改","涉及违纪的，由纪检监察部门追究责任","构成犯罪的，依法移交司法机关处理","仅进行批评教育"],"ans":[0,1,2]},{"id":"ghm64","src":"gh","type":"multi","stem":"女职工委员会定期研究涉及女职工特殊权益问题，向（　）报告工作，重要问题应提交企业职工代表大会或职工大会审议。","opts":["企业工会委员会","上级女职工委员会","上级工会委员会","同级党组织"],"ans":[0,1]},{"id":"ghm65","src":"gh","type":"multi","stem":"关于基层工会会员代表大会，下列说法正确的是（　）。","opts":["是基层工会的最高领导机构","讨论决定基层工会重大事项","选举基层工会领导机构，并对其进行监督","每年至少召开一次"],"ans":[0,1,2,3]},{"id":"ghm66","src":"gh","type":"multi","stem":"深化工会改革创新，要不断提高工会的（　）。","opts":["创新力","引领力","组织力","服务力"],"ans":[1,2,3]},{"id":"ghm67","src":"gh","type":"multi","stem":"女职工人数比较多的用人单位应当根据女职工需要，按照规定设置（　）等场所和设施","opts":["女职工卫生室","孕妇休息室","哺乳室","更衣室"],"ans":[0,1,2]},{"id":"ghm68","src":"gh","type":"multi","stem":"下面关于工会的说法正确的是（　）。","opts":["工会组织肩负推进劳动关系和谐企业建设的重要职责","工会是劳动关系矛盾的产物，协调与发展和谐劳动关系是工会的基本职责","工会职责之一是协调各党派间的合作发展","工会在表达职工利益、协调企业劳动关系方面具有不可替代的优势"],"ans":[0,1,3]},{"id":"ghm69","src":"gh","type":"multi","stem":"七局工会“四必访”为:（　）","opts":["员工生病住院必访","婚丧嫁娶必访","工伤必访","特殊困难必访","职工子女家访"],"ans":[0,1,2,3]},{"id":"ghm70","src":"gh","type":"multi","stem":"贯彻落实全心全意依靠工人阶级的方针，提升产业工人获得感幸福感安全感，最重要的是努力提升产业工人（　）。","opts":["经济地位","政治地位","社会地位","文化地位"],"ans":[0,1,2,3]},{"id":"ghm71","src":"gh","type":"multi","stem":"工会经费可用于职工文体活动（　）。","opts":["器材、服装、用品等购置","活动场地、交通工具的租金","活动优胜者奖励","文体活动伙食补助"],"ans":[0,1,2,3]},{"id":"ghm72","src":"gh","type":"multi","stem":"工会开展送温暖活动主要有（　）。","opts":["春送岗位","夏送清凉","金秋助学","冬送温暖"],"ans":[0,1,2,3]},{"id":"ghm73","src":"gh","type":"multi","stem":"基层工会应定期向（　）和（　）报告预算执行情况。","opts":["工会委员会","会员代表大会","经费审查委员会","工会全委会"],"ans":[0,2]},{"id":"ghm74","src":"gh","type":"multi","stem":"基层工会应加强财务管理制度建设，健全完善（　）管理制度。","opts":["财务报销","财务核算","资产管理","资金使用"],"ans":[0,2,3]},{"id":"ghm75","src":"gh","type":"multi","stem":"劳动竞赛是工会劳动和经济工作的重要内容，是工会（　）的重要手段和载体，在工会工作全局中具有重要地位。","opts":["围绕中心","服务大局","推动发展","改革创新"],"ans":[0,1,2]},{"id":"ghf1","src":"gh","type":"fill","stem":"《中华人民共和国工会法》规定，工会是职工自愿结合的（　）的群众组织。","ansText":"工人阶级"},{"id":"ghf2","src":"gh","type":"fill","stem":"基层工会委员会任期为（　）。","ansText":"三年或者五年"},{"id":"ghf3","src":"gh","type":"fill","stem":"补选主席前征得同级党组织和上一级工会的同意，可暂由一名副主席或委员主持工作，期限一般不超过（　）。","ansText":"半年"},{"id":"ghf4","src":"gh","type":"fill","stem":"党的（　）就是我国工人运动的时代主题。","ansText":"中心任务"},{"id":"ghf5","src":"gh","type":"fill","stem":"工会各级组织按照（　）原则建立。","ansText":"民主集中制"},{"id":"ghf6","src":"gh","type":"fill","stem":"基层工会经费收支管理应遵循（　）原则:基层工会应依靠会员管好用好工会经费。年度工会经费收支情况（　），建立经费收支信息公开制度，主动接受会员监督。同时，接受上级工会监督，依法接受国家审计监督。","ansText":"民主管理；应定期向会员大会或会员代表大会报告"},{"id":"ghf7","src":"gh","type":"fill","stem":"会费收入是指工会会员依照全国总工会规定按本人工资收入的（　）向所在基层工会缴纳的会费。","ansText":"5‰"},{"id":"ghf8","src":"gh","type":"fill","stem":"根据《中建七局工会合同管理暂行办法》规定，合同纠纷协商、调解，应由合同承办及管理部门在（　）指导下共同进行。","ansText":"工会经审委"},{"id":"ghf9","src":"gh","type":"fill","stem":"企业应当建立以（　）为基本形式的民主管理制度，实行厂务公开，推行民主管理。","ansText":"职工代表大会"},{"id":"ghf10","src":"gh","type":"fill","stem":"（　）、工匠精神是以爱国主义为核心的民族精神和以改革创新为核心的时代精神的生动体现。","ansText":"劳模精神、劳动精神"},{"id":"ghf11","src":"gh","type":"fill","stem":"《中国工会章程》规定，凡在中国境内的企业、事业单位、机关、社会组织中，以工资收入为主要生活来源或者与用人单位建立（　）的劳动者，不分民族、种族、性别、职业、宗教信仰、教育程度，承认工会章程，都可以加入工会为会员。","ansText":"劳动关系"},{"id":"ghf12","src":"gh","type":"fill","stem":"公司工会对成果丰富、创效明显的工作室发放不低于（　）元的专项补助经费。","ansText":"5000"},{"id":"ghf13","src":"gh","type":"fill","stem":"工会换届的单位，换届选举的筹备工作由（　）负责。","ansText":"上届工会委员会"},{"id":"ghf14","src":"gh","type":"fill","stem":"基层工会自身健身设施不足时，可为职工购买健身服务，但不得以（　）的形式发放。","ansText":"健身卡、预付卡"},{"id":"ghf15","src":"gh","type":"fill","stem":"职代会闭会期间，可由（　）以上职工代表联名提议召开临时会议。","ansText":"三分之一"},{"id":"ghf16","src":"gh","type":"fill","stem":"工会代表职工与企业进行平等协商，签订（　）。","ansText":"集体合同"},{"id":"ghf17","src":"gh","type":"fill","stem":"职代会每次会议必须有全体职工代表的（　）以上出席方可召开。","ansText":"三分之二"},{"id":"ghf18","src":"gh","type":"fill","stem":"工会动员和组织职工积极参加经济建设，努力完成（　）和工作任务。","ansText":"生产任务"},{"id":"ghf19","src":"gh","type":"fill","stem":"召开会议讨论有关工资、福利、劳动安全卫生、工作时间、休息休假、女职工保护和社会保险等涉及职工切身利益的问题，必须有（　）参加。","ansText":"工会代表"},{"id":"ghf20","src":"gh","type":"fill","stem":"工会通过平等协商和集体合同制度等，推动健全（　）协调机制。","ansText":"劳动关系"},{"id":"ghf21","src":"gh","type":"fill","stem":"用人单位有会员（　）人以上的，应当建立基层工会委员会。","ansText":"25"},{"id":"ghf22","src":"gh","type":"fill","stem":"根据河南省职业技能竞赛管理办法规定，技能竞赛试题分为实际操作和理论知识两部分的，实际操作部分分值应占（　）%以上。","ansText":"70"},{"id":"ghf23","src":"gh","type":"fill","stem":"企业、事业单位、社会组织研究经营管理和发展的重大问题应当听取（　）的意见。","ansText":"工会"},{"id":"ghf24","src":"gh","type":"fill","stem":"工会主席、副主席任期未满时，不得随意（　）其工作。","ansText":"调动"},{"id":"ghf25","src":"gh","type":"fill","stem":"集体合同草案应当提交（　）或者全体职工讨论通过。","ansText":"职工代表大会"},{"id":"ghf26","src":"gh","type":"fill","stem":"工会帮助、指导职工与企业、实行企业化管理的事业单位、社会组织签订（　）。","ansText":"劳动合同"},{"id":"ghf27","src":"gh","type":"fill","stem":"中国工会十八大报告提出，要加强对职工群众的（　）引领，引导职工群众听党话、跟党走，巩固党执政的阶级基础和群众基础。","ansText":"思想政治"},{"id":"ghf28","src":"gh","type":"fill","stem":"基层工会各项收支实行工会委员会集体领导下的（　）负责制","ansText":"主席"},{"id":"ghf29","src":"gh","type":"fill","stem":"女职工较多的企业、事业单位、机关，可以建立工会女职工委员会，在（　）领导下开展工作。","ansText":"同级工会"},{"id":"ghf30","src":"gh","type":"fill","stem":"中国工会以（　）为根本活动准则。","ansText":"宪法"},{"id":"ghf31","src":"gh","type":"fill","stem":"用人单位自（　）起即与劳动者建立劳动关系。","ansText":"用工之日"},{"id":"ghf32","src":"gh","type":"fill","stem":"国家保护工会的（　）不受侵犯。","ansText":"合法权益"},{"id":"ghf33","src":"gh","type":"fill","stem":"企业工会具备法人条件的，依法取得社会团体法人资格，（　）是法定代表人。","ansText":"工会主席"},{"id":"ghf34","src":"gh","type":"fill","stem":"根据中建七局工会工作管理办法，各级工会委员会由会员大会或会员代表大会（　）。","ansText":"差额选举产生"},{"id":"ghf35","src":"gh","type":"fill","stem":"工会经费主要用于（　）。","ansText":"为职工服务和开展工会活动"},{"id":"ghf36","src":"gh","type":"fill","stem":"习近平总书记在庆祝中华全国总工会成立 100 周年大会上指出，中国特色社会主义工会发展道路是 100 年来党的工运事业（　）的最重要成果。","ansText":"理论创新和实践发展"},{"id":"ghf37","src":"gh","type":"fill","stem":"企业单方面解除职工劳动合同时，应当事先将理由通知（　）。","ansText":"工会"},{"id":"ghf38","src":"gh","type":"fill","stem":"根据中建七局工会劳动竞赛指导手册的有关规定，“七比二创”中“二创”指的是创和谐团队、（　）。","ansText":"创精品工程"},{"id":"ghf39","src":"gh","type":"fill","stem":"工会推动产业工人队伍建设改革，提高产业工人队伍整体素质，发挥产业工人骨干作用，维护产业工人合法权益，保障产业工人（　）地位。","ansText":"主人翁"},{"id":"ghf40","src":"gh","type":"fill","stem":"工会建立联系广泛、服务职工的工会工作体系，密切联系职工，听取和反映职工的意见和要求，关心职工的生活，帮助职工解决困难，（　）为职工服务。","ansText":"全心全意"},{"id":"ghf41","src":"gh","type":"fill","stem":"工会动员和组织职工积极参加经济建设，努力完成生产任务和工作任务。教育职工不断提高思想道德、技术业务和科学文化素质，建设有理想、有道德、有文化、（　）的职工队伍。","ansText":"有纪律"},{"id":"ghf42","src":"gh","type":"fill","stem":"职工（　）人以上的企业、事业单位、社会组织的工会，可以设专职工会主席。","ansText":"200"},{"id":"ghf43","src":"gh","type":"fill","stem":"根据《中建七局企业民主管理实施细则》，职工代表大会闭会后，工会应当在闭会后（　）向上级工会报告会议情况。","ansText":"7日内"},{"id":"ghf44","src":"gh","type":"fill","stem":"中国工会十八大提出，要围绕保持和增强政治性、先进性、群众性，深入推进工会（　）。","ansText":"改革创新"},{"id":"ghf45","src":"gh","type":"fill","stem":"中国工会十八大提出，要突出抓好基层基础工作，打通服务职工群众（　）。","ansText":"最后一公里"},{"id":"ghf46","src":"gh","type":"fill","stem":"习近平总书记强调，要深化工会改革和建设，不断增强引领力、组织力、服务力 。","ansText":"（原题未挖空，请对照原句记忆）"},{"id":"ghf47","src":"gh","type":"fill","stem":"会员享有选举权、被选举权和（　）。","ansText":"表决权"},{"id":"ghf48","src":"gh","type":"fill","stem":"工会主席、副主席任期未满时，不得随意调动其工作。因工作需要调动时，应征得（　）同意。","ansText":"本级工会委员会和上一级工会"},{"id":"ghf49","src":"gh","type":"fill","stem":"基层工会委员会的主席、副主席，在任职（　）内应按规定参加岗位任职资格培训。","ansText":"一年"},{"id":"ghf50","src":"gh","type":"fill","stem":"新建立的基层工会组织选举筹备工作由（　）负责。","ansText":"工会筹备组"},{"id":"ghj1","src":"gh","type":"judge","stem":"开展新时代工会工作要坚持以习近平新时代中国特色社会主义思想为指导","opts":["正确","错误"],"ans":[0]},{"id":"ghj2","src":"gh","type":"judge","stem":"全总“五化”工作要求是“服务化、体系化、品牌化、创新化、数智化”","opts":["正确","错误"],"ans":[0]},{"id":"ghj3","src":"gh","type":"judge","stem":"离退休人员的集体福利应纳入基层工会集体福利发放范围","opts":["正确","错误"],"ans":[1]},{"id":"ghj4","src":"gh","type":"judge","stem":"深化产业工人队伍建设改革，要搭平台、强服务、提技能、优环境","opts":["正确","错误"],"ans":[0]},{"id":"ghj5","src":"gh","type":"judge","stem":"年度内发生伤亡事故的单位不得申报“安康杯”竞赛先进，已获得的不再继续认定","opts":["正确","错误"],"ans":[0]},{"id":"ghj6","src":"gh","type":"judge","stem":"坚决把牢工会工作政治方向，要切实维护劳动领域政治安全","opts":["正确","错误"],"ans":[0]},{"id":"ghj7","src":"gh","type":"judge","stem":"构建产业工人技能形成体系，要深入推进“农民工素质和技能提升站”建设","opts":["正确","错误"],"ans":[0]},{"id":"ghj8","src":"gh","type":"judge","stem":"深化产业工人队伍建设改革，要坚持促进企业发展和维护职工权益并重","opts":["正确","错误"],"ans":[0]},{"id":"ghj9","src":"gh","type":"judge","stem":"基层工会经费支出只能用于职工活动支出、维权支出、业务支出、资本性支出","opts":["正确","错误"],"ans":[1]},{"id":"ghj10","src":"gh","type":"judge","stem":"基层工会应加强对各项经费收入管理，不得将与工会无关的经费以行政补助名义纳入工会账户管理","opts":["正确","错误"],"ans":[0]},{"id":"ghj11","src":"gh","type":"judge","stem":"基层工会经费中的职工教育支出，不能用于基层工会组织的职工素质提升补助和职工教育培训优秀学员的奖励","opts":["正确","错误"],"ans":[1]},{"id":"ghj12","src":"gh","type":"judge","stem":"工会文体活动对优秀学员的奖励应以精神鼓励为辅、物质激励为主","opts":["正确","错误"],"ans":[1]},{"id":"ghj13","src":"gh","type":"judge","stem":"根据《中建七局工会采购管理暂行办法》，单项采购预算金额 5 万元(含本数)以下的采购项目，可以自行采购，凭发票及清单进行核销","opts":["正确","错误"],"ans":[0]},{"id":"ghj14","src":"gh","type":"judge","stem":"劳动竞赛考核实行安全、质量一票否决制","opts":["正确","错误"],"ans":[0]},{"id":"ghj15","src":"gh","type":"judge","stem":"职工代表任期与职工代表大会届期一致，可以连选连任","opts":["正确","错误"],"ans":[0]},{"id":"ghj16","src":"gh","type":"judge","stem":"基层工会可以用会员会费组织会员观看电影、文艺演出和体育比赛等","opts":["正确","错误"],"ans":[0]},{"id":"ghj17","src":"gh","type":"judge","stem":"职工医疗互助活动是我国以社会保险为基础的多层次社会保障体系的重要组成部分，也是中国工会传统特色工作，体现了中国工人阶级团结友爱、互助互济精神","opts":["正确","错误"],"ans":[0]},{"id":"ghj18","src":"gh","type":"judge","stem":"基层工会逢年过节可以向全体会员发放节日慰问品","opts":["正确","错误"],"ans":[0]},{"id":"ghj19","src":"gh","type":"judge","stem":"国家规定的法定节日是元旦、春节、元宵节、清明节、劳动节、端午节、中秋节和国庆节","opts":["正确","错误"],"ans":[1]},{"id":"ghj20","src":"gh","type":"judge","stem":"基层工会逢年过节可为职工发放现金、购物卡、代金券","opts":["正确","错误"],"ans":[1]},{"id":"ghj21","src":"gh","type":"judge","stem":"基层工会会员工资未纳入拨缴工会经费总额的，一律不得向该会员发放集体福利","opts":["正确","错误"],"ans":[0]},{"id":"ghj22","src":"gh","type":"judge","stem":"工会会员本人及家庭因大病、意外事故、子女就学等原因致困时，基层工会可以根据会员困难情况进行慰问","opts":["正确","错误"],"ans":[0]},{"id":"ghj23","src":"gh","type":"judge","stem":"工会经费可用于基层工会开展工会干部和积极分子培训","opts":["正确","错误"],"ans":[0]},{"id":"ghj24","src":"gh","type":"judge","stem":"严禁无预算、超预算使用工会经费","opts":["正确","错误"],"ans":[0]},{"id":"ghj25","src":"gh","type":"judge","stem":"基层工会重大收支须集体研究决定","opts":["正确","错误"],"ans":[0]},{"id":"ghj26","src":"gh","type":"judge","stem":"工会主席是厂务公开的主要责任人","opts":["正确","错误"],"ans":[1]},{"id":"ghj27","src":"gh","type":"judge","stem":"职工代表大会每届任期三年或者五年，每年至少召开一次会议","opts":["正确","错误"],"ans":[0]},{"id":"ghj28","src":"gh","type":"judge","stem":"国家提倡劳动者参加社会主义义务劳动，开展劳动竞赛和合理化建议活动","opts":["正确","错误"],"ans":[0]},{"id":"ghj29","src":"gh","type":"judge","stem":"广泛组织开展群众性安全生产和职业健康活动，有助于提高职工安全健康意识和安全技能，防范遏制事故发生","opts":["正确","错误"],"ans":[0]},{"id":"ghj30","src":"gh","type":"judge","stem":"会员代表大会是企业实行民主管理的基本形式，也是基层民主政治建设的基本制度","opts":["正确","错误"],"ans":[1]},{"id":"ghj31","src":"gh","type":"judge","stem":"基层工会主席因工作调动或其他原因空缺时，应及时按照相应民主程序进行补选","opts":["正确","错误"],"ans":[0]},{"id":"ghj32","src":"gh","type":"judge","stem":"凡在中国境内的企业、事业单位、机关和其他社会组织中，以工资收入为主要生活来源或者与用人单位建立劳动关系的体力劳动者和脑力劳动者，不分民族、种族、性别、职业、宗教信仰、教育程度，承认工会章程，都可以加入工会为会员","opts":["正确","错误"],"ans":[0]},{"id":"ghj33","src":"gh","type":"judge","stem":"发现企业违章指挥、强令工人冒险作业，或者生产过程中发现明显重大事故隐患和职业危害，工会应提出解决的建议；发现危及职工生命安全的情况，工会有权组织职工撤离危险现场","opts":["正确","错误"],"ans":[0]},{"id":"ghj34","src":"gh","type":"judge","stem":"集体合同由工会代表职工一方与用人单位，通过平等协商，就劳动报酬、工作时间、休息休假、劳动安全卫生、保险福利等事项订立的书面协议","opts":["正确","错误"],"ans":[0]},{"id":"ghj35","src":"gh","type":"judge","stem":"单位按职工工资总额的 2%拨缴经费，全部留给基层工会使用","opts":["正确","错误"],"ans":[1]},{"id":"ghj36","src":"gh","type":"judge","stem":"工基层工会委员会主席可以由上级工会直接任命","opts":["正确","错误"],"ans":[1]},{"id":"ghj37","src":"gh","type":"judge","stem":"根据《中国工会章程》的规定，对工会工作进行监督，提出意见和建议，是会员应该履行的义务","opts":["正确","错误"],"ans":[1]},{"id":"ghj38","src":"gh","type":"judge","stem":"基层工会组织春游，可以在风景名胜区住三晚","opts":["正确","错误"],"ans":[1]},{"id":"ghj39","src":"gh","type":"judge","stem":"女职工产假期间的生育津贴，按照下列情形支付:对已经参加生育保险的，按照用人单位本年度月平均工资标准由生育保险基金支付","opts":["正确","错误"],"ans":[1]},{"id":"ghj40","src":"gh","type":"judge","stem":"中国工会的最高领导机关是中华全国总工会执行委员会","opts":["正确","错误"],"ans":[1]},{"id":"ghj41","src":"gh","type":"judge","stem":"工会可以用现金发放生日慰问","opts":["正确","错误"],"ans":[1]},{"id":"ghj42","src":"gh","type":"judge","stem":"工会经费、会费可以用于投资理财，争取收益","opts":["正确","错误"],"ans":[1]},{"id":"ghj43","src":"gh","type":"judge","stem":"工会的基本职责是组织职工开展文体活动","opts":["正确","错误"],"ans":[1]},{"id":"ghj44","src":"gh","type":"judge","stem":"经济补偿按劳动者在本单位工作的年限，每满一年支付一个半月工资的标准向劳动者支付","opts":["正确","错误"],"ans":[1]},{"id":"ghj45","src":"gh","type":"judge","stem":"基层工会“六一”慰问，可以直接给有孩子的职工发钱","opts":["正确","错误"],"ans":[1]},{"id":"ghj46","src":"gh","type":"judge","stem":"《中建七局工会工作管理办法》规定，工会接受同级党组织和上级工会双重领导，以上级工会领导为主","opts":["正确","错误"],"ans":[1]},{"id":"ghj47","src":"gh","type":"judge","stem":"职工 100 人以上的企业就必须配备专职工会主席","opts":["正确","错误"],"ans":[1]},{"id":"ghj48","src":"gh","type":"judge","stem":"企业工会应为女职工委员会开展工作与活动提供必要的经费","opts":["正确","错误"],"ans":[0]},{"id":"ghj49","src":"gh","type":"judge","stem":"企业行政应依法支持工会履行职责，为工会开展工作创造必要条件","opts":["正确","错误"],"ans":[0]},{"id":"ghj50","src":"gh","type":"judge","stem":"上级工会应建立对企业工会干部的考核、激励机制，对依法履行职责作出突出贡献的工会干部给予表彰奖励","opts":["正确","错误"],"ans":[0]},{"id":"ghe1","src":"gh","type":"essay","stem":"“六有工会”建设包括什么？","ansText":"有依法选举的工会主席；有独立健全的组织机构；有服务职工的活动载体；有健全完善的制度机制；有自主管理的工会经费；有会员满意的工作绩效。"},{"id":"ghe2","src":"gh","type":"essay","stem":"公司“服务零距离”主题关爱行动的服务内容有什么？","ansText":"权益维护、心理健康、素质提升、困难帮扶、节日慰问、政策宣贯、文体活动、家庭关怀、建言献策、女职工特殊关爱。(回答出主要内容即可)"},{"id":"ghe3","src":"gh","type":"essay","stem":"简述职代会召开的程序和内容。","ansText":"职代会正式会议召开前，应组织职工代表召开预备会议，主要程序是:选举大会主席团；听取关于本届(次)职代会筹备情况；审议通过职工代表资格审查情况报告；通过大会议题和议程；决定大会其他事项。职代会正式会议由大会主席团主持，按照预备会议确定的议程进行。内容包括职代会工作报告、职代会选举和表决相关事项、民主评议等。其中，表决事项必须按少数服从多数的原则，经全体职工代表的过半数通过对重要事项的表决，应当采用无记名投票的方式分项表决。"},{"id":"ghe4","src":"gh","type":"essay","stem":"“五必送、四必访”分别指什么？","ansText":"“五必送”即:送温暖、送健康、送法律、送文化、送岗位。“四必访”即:员工生病住院必访、婚丧嫁娶必访、工伤必访、特殊困难必访。"},{"id":"ghe5","src":"gh","type":"essay","stem":"基层工会经费收支管理应遵循哪些原则？","ansText":"遵纪守法原则、经费独立原则、预算管理原则、服务职工原则、勤俭节约原则、民主管理原则。"},{"id":"ghe6","src":"gh","type":"essay","stem":"已知某项目现有管理人员35人，简述该项目工会组建流程。","ansText":"根据《工会法》和《中国工会章程》相关规定，该项目现有管理人员 35 人，已超过25 人，应当建立基层工会委员会。组建流程简述如下:①成立筹备组在上级工会指导下，由项目党组织或行政负责人牵头，成立工会筹备组(一般 3-5 人)，负责具体组建工作。②发展会员筹备组宣传动员，组织职工填写《中华全国总工会入会申请书》和《工会会员登记表》，进行会员登记。③召开会员大会筹备组提出候选人建议名单，报上级工会和同级党组织同意。召开全体会员大会，差额选举产生工会委员会和等额选举产生工会主席。④选举结果报批将选举结果报上级工会批准。上级工会批复后，工会委员会正式成立。(回答出③④主要内容即可)"},{"id":"ghe7","src":"gh","type":"essay","stem":"劳动竞赛中“七比二创”指的是什么？","ansText":"比工程质量，比工程进度，比安全生产，比技术创新，比文明施工，比收款效益，比科学管理，创和谐团队，创精品工程"},{"id":"ghe8","src":"gh","type":"essay","stem":"工会经费的来源有哪些？主要用于哪些方面？","ansText":"会员缴纳的会费；用人单位按工资总额 2%拨缴的经费；工会所属企业事业单位上缴的收入；人民政府补助；其他收入。主要用于为职工服务和工会活动。"}]</script>
+<script>
+(function(){
+'use strict';
+window.addEventListener('error', function(e){
+  try{
+    var el = document.createElement('div');
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#c5524a;color:#fff;font-size:12px;padding:6px 10px;z-index:99999';
+    el.textContent = '脚本错误：' + (e.message || '未知');
+    document.body.appendChild(el);
+  }catch(_e){}
+});
+var DATA = JSON.parse(document.getElementById('quiz-data').textContent);
+var BY_ID = {}; DATA.forEach(function(q){ BY_ID[q.id] = q; });
+var KEY = 'djjh_quiz_v1';
+var LETTER = 'ABCDEFGH';
+var TYPE_NAME = {single:'单选题', multi:'多选题', judge:'判断题', fill:'填空题', essay:'简答题'};
+var SRC_NAME = {dw:'党务', gh:'工会'};
+var scope = 'all', countN = 50;
+var state, session, qStart = 0, timerId = null, curPick = [], answered = false;
+
+/* ---------- 状态 ---------- */
+function load(){
+  try{ var raw = localStorage.getItem(KEY); if(raw) return JSON.parse(raw); }catch(e){}
+  return {v:1, scopes:{}, stats:{answered:0, correct:0}, session:null};
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function idsFor(s){
+  return DATA.filter(function(q){ return s === 'all' || q.src === s; }).map(function(q){ return q.id; });
+}
+function S(s){
+  if(!state.scopes[s]) state.scopes[s] = {pool: shuffle(idsFor(s)), wrong:[], cycle:1};
+  return state.scopes[s];
+}
+function shuffle(a){
+  a = a.slice();
+  for(var i = a.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function fmt(ms){
+  var s = Math.floor(ms / 1000), m = Math.floor(s / 60);
+  s = s % 60;
+  return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function stemHTML(s){
+  return esc(s).replace(/（\u3000）/g, '<span class="blank"></span>');
+}
+function ansTextOf(q){
+  if(q.type === 'fill' || q.type === 'essay') return q.ansText;
+  return q.ans.map(function(i){ return LETTER.charAt(i) + '. ' + q.opts[i]; }).join('　');
+}
+function sameSet(a, b){
+  if(a.length !== b.length) return false;
+  var x = a.slice().sort().join(','), y = b.slice().sort().join(',');
+  return x === y;
+}
+
+/* ---------- 组卷 ---------- */
+function buildQueue(s, n, onlyWrong){
+  var st = S(s);
+  var pool = st.pool.slice();
+  var wrongPool = st.wrong.filter(function(id){ return BY_ID[id]; });
+  var picked = [], used = {};
+  var wrongPick = [];
+  if(onlyWrong){
+    wrongPick = shuffle(wrongPool).slice(0, n);
+  }else{
+    var wrongN = Math.min(wrongPool.length, Math.max(1, Math.round(n * 0.2)), Math.max(1, Math.floor(n / 2)));
+    wrongPick = shuffle(wrongPool).slice(0, wrongN);
+  }
+  wrongPick.forEach(function(id){ used[id] = 1; });
+  var need = n - wrongPick.length;
+  // 先取本轮未练过的题
+  for(var i = 0; i < pool.length && picked.length < need; i++){
+    if(!used[pool[i]]){ picked.push(pool[i]); used[pool[i]] = 1; }
+  }
+  // 不够则开启新一轮（全库重新洗牌，避开已选及错题）
+  if(picked.length < need){
+    var fresh = shuffle(idsFor(s)).filter(function(id){ return !used[id]; });
+    st.cycle++;
+    st.pool = fresh.slice();
+    for(var k = 0; k < fresh.length && picked.length < need; k++){
+      picked.push(fresh[k]); used[fresh[k]] = 1;
+    }
+  }
+  // 更新本轮池子：把本次要出的新题移出
+  st.pool = st.pool.filter(function(id){ return !picked.some(function(p){ return p === id; }); });
+  // 错题均匀插入
+  var queue = picked.slice();
+  var step = queue.length / (wrongPick.length + 1);
+  wrongPick.forEach(function(id, idx){
+    var pos = Math.min(queue.length, Math.round(step * (idx + 1)) + idx);
+    queue.splice(pos, 0, id);
+  });
+  return queue;
+}
+
+function startSession(s, n, onlyWrong){
+  var ids = buildQueue(s, n, onlyWrong);
+  if(!ids.length){ toast('没有可练习的题目'); return; }
+  session = {scope:s, ids:ids, i:0, answers:{}, rein:{}, startAt:Date.now(), onlyWrong:!!onlyWrong};
+  state.session = session;
+  save();
+  show('s-quiz');
+  renderQ();
+}
+
+/* ---------- 答题渲染 ---------- */
+function current(){ return BY_ID[session.ids[session.i]]; }
+
+function renderQ(){
+  answered = false; curPick = [];
+  var q = current();
+  if(!q){ finish(); return; }
+  document.getElementById('tbScope').textContent = session.onlyWrong ? '错题重练' :
+      (session.scope === 'all' ? '全部题库' : SRC_NAME[session.scope] + '题库');
+  document.getElementById('tbProg').textContent = '第 ' + (session.i + 1) + ' 题 / 共 ' + session.ids.length + ' 题';
+  document.getElementById('qBar').style.width = ((session.i) / session.ids.length * 100) + '%';
+
+  var meta = '<span class="tag">' + TYPE_NAME[q.type] + '</span><span class="tag src">' + SRC_NAME[q.src] + '</span>';
+  if(session.rein[q.id]) meta += '<span class="tag again">错题重练</span>';
+  document.getElementById('qMeta').innerHTML = meta;
+  document.getElementById('qText').innerHTML = stemHTML(q.stem);
+
+  var box = document.getElementById('qOpts');
+  var extra = document.getElementById('qExtra');
+  document.getElementById('qFeed').innerHTML = '';
+  document.getElementById('qFooter').style.display = 'none';
+  extra.innerHTML = '';
+
+  if(q.type === 'fill'){
+    var blanks = (q.stem.match(/（\u3000）/g) || []).length;
+    var parts = fillParts(q);
+    if(blanks >= 1 && blanks === parts.length){
+      var fh = '';
+      for(var b = 0; b < blanks; b++){
+        fh += '<div class="fillrow"><span class="fl">' + (b + 1) + '</span>' +
+              '<input class="fillin" data-b="' + b + '" autocomplete="off" autocapitalize="off" placeholder="输入第 ' + (b + 1) + ' 空答案"></div>';
+      }
+      box.innerHTML = '<div class="fillwrap">' + fh + '</div>';
+      extra.innerHTML = '<button class="btn btn-primary" id="btnFillSubmit" style="margin-top:12px;width:100%">提交答案</button>';
+      document.getElementById('btnFillSubmit').onclick = judgeFill;
+      var ins = box.querySelectorAll('.fillin');
+      Array.prototype.forEach.call(ins, function(inp, ix){
+        inp.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){
+            e.preventDefault();
+            if(ix + 1 < ins.length) ins[ix + 1].focus(); else judgeFill();
+          }
+        });
+      });
+    }else{
+      box.innerHTML = '';
+      extra.innerHTML = '<div style="margin-top:6px"><button class="btn btn-ghost" id="btnReveal">查看参考答案</button></div>';
+      document.getElementById('btnReveal').onclick = function(){ revealSelf(q); };
+    }
+  }else if(q.type === 'essay'){
+    box.innerHTML = '<textarea class="essayin" id="essayIn" placeholder="在下方输入你的答案，提交后对照参考答案自评"></textarea>';
+    extra.innerHTML = '<button class="btn btn-primary" id="btnEssaySubmit" style="margin-top:12px;width:100%">提交答案</button>';
+    document.getElementById('btnEssaySubmit').onclick = essaySubmit;
+  }else{
+    var html = '';
+    q.opts.forEach(function(text, i){
+      html += '<button class="opt" data-i="' + i + '"><span class="badge">' + LETTER.charAt(i) + '</span><span>' + esc(text) + '</span></button>';
+    });
+    box.innerHTML = html;
+    Array.prototype.forEach.call(box.querySelectorAll('.opt'), function(el){
+      el.addEventListener('click', function(){ pickOption(parseInt(el.dataset.i, 10)); });
+    });
+  }
+
+  qStart = Date.now();
+  if(timerId) clearInterval(timerId);
+  document.getElementById('timerTxt').textContent = '00:00';
+  timerId = setInterval(function(){
+    document.getElementById('timerTxt').textContent = fmt(Date.now() - qStart);
+  }, 250);
+  try{ window.scrollTo({top:0, behavior:'auto'}); }catch(_e){ window.scrollTo(0, 0); }
+}
+
+function pickOption(i){
+  var q = current();
+  if(answered) return;
+  if(q.type === 'multi'){
+    var p = curPick.indexOf(i);
+    if(p >= 0) curPick.splice(p, 1); else curPick.push(i);
+    Array.prototype.forEach.call(document.getElementById('qOpts').querySelectorAll('.opt'), function(el){
+      el.classList.toggle('sel', curPick.indexOf(parseInt(el.dataset.i, 10)) >= 0);
+    });
+    var extra = document.getElementById('qExtra');
+    if(curPick.length){
+      extra.innerHTML = '<button class="btn btn-primary" id="btnSubmit" style="margin-top:6px">提交答案</button>';
+      document.getElementById('btnSubmit').onclick = function(){ judge(curPick.slice()); };
+    }else{ extra.innerHTML = ''; }
+  }else{
+    curPick = [i];
+    judge([i]);
+  }
+}
+
+function judge(pick){
+  if(answered) return;
+  answered = true;
+  var q = current();
+  var ms = Date.now() - qStart;
+  if(timerId){ clearInterval(timerId); timerId = null; }
+  var ok = sameSet(pick, q.ans);
+
+  recordResult(q, ok, ms, pick);
+
+  if(q.type !== 'fill' && q.type !== 'essay'){
+    Array.prototype.forEach.call(document.getElementById('qOpts').querySelectorAll('.opt'), function(el){
+      var i = parseInt(el.dataset.i, 10);
+      var isAns = q.ans.indexOf(i) >= 0, isPick = pick.indexOf(i) >= 0;
+      el.disabled = true;
+      if(isAns) el.classList.add('ok');
+      else if(isPick) el.classList.add('bad');
+      else el.classList.add('dim');
+      el.classList.remove('sel');
+    });
+    document.getElementById('qExtra').innerHTML = '';
+  }
+  showFeedback(q, ok, ms, pick);
+  document.getElementById('qFooter').style.display = 'block';
+  document.getElementById('btnNext').textContent = (session.i + 1 >= session.ids.length) ? '查看结果' : '下一题';
+  document.getElementById('qBar').style.width = ((session.i + 1) / session.ids.length * 100) + '%';
+  save();
+}
+
+function recordResult(q, ok, ms, pick){
+  session.answers[q.id] = {pick:pick, ok:ok, ms:ms};
+  state.stats.answered++;
+  if(ok) state.stats.correct++;
+  var st = S(session.scope);
+  st.pool = st.pool.filter(function(id){ return id !== q.id; });
+  if(ok){
+    st.wrong = st.wrong.filter(function(id){ return id !== q.id; });
+  }else{
+    if(st.wrong.indexOf(q.id) < 0) st.wrong.push(q.id);
+    if(!session.rein[q.id]){ session.rein[q.id] = 1; session.ids.push(q.id); }
+  }
+  save();
+}
+function fillParts(q){
+  return String(q.ansText || '').replace(/\uFF1B/g, ';').split(';')
+    .map(function(x){ return x.trim(); }).filter(Boolean);
+}
+var FW_DIGITS = {'\uFF10':'0','\uFF11':'1','\uFF12':'2','\uFF13':'3','\uFF14':'4','\uFF15':'5','\uFF16':'6','\uFF17':'7','\uFF18':'8','\uFF19':'9'};
+function normAns(x){
+  var t = String(x || '').toLowerCase();
+  t = t.replace(/[\uFF10-\uFF19]/g, function(c){ return FW_DIGITS[c]; });
+  t = t.replace(/[\s\u3000]/g, '');
+  t = t.replace(/[\uFF0C\u3001\u3002\uFF0E,.;\uFF1B:\uFF1A!\uFF01?\uFF1F\u201C\u201D\u2018\u2019"'\uFF08\uFF09()\u3010\u3011\[\]\u300A\u300B<>]/g, '');
+  return t;
+}
+
+function ansAlts(part){
+  var segs = String(part || '').split(/(?:\u6216\u8005|\u6216)/).map(function(x){ return x.trim(); }).filter(Boolean);
+  if(segs.length > 1 && segs.every(function(x){ return x.length <= 6; })) return segs;
+  return [part];
+}
+function afterJudgeUI(){
+  document.getElementById('qFooter').style.display = 'block';
+  document.getElementById('btnNext').textContent = (session.i + 1 >= session.ids.length) ? '查看结果' : '下一题';
+  document.getElementById('qBar').style.width = ((session.i + 1) / session.ids.length * 100) + '%';
+}
+function judgeFill(){
+  if(answered) return;
+  var q = current();
+  var ins = Array.prototype.slice.call(document.querySelectorAll('#qOpts .fillin'));
+  var parts = fillParts(q);
+  if(!ins.length || parts.length !== ins.length) return;
+  answered = true;
+  var ms = Date.now() - qStart;
+  if(timerId){ clearInterval(timerId); timerId = null; }
+  var allOk = true, vals = [];
+  ins.forEach(function(inp, ix){
+    var v = inp.value;
+    vals.push(v);
+    inp.disabled = true;
+    inp.blur();
+    var okB = ansAlts(parts[ix] || '').some(function(a){ return normAns(a) === normAns(v); });
+    inp.classList.add(okB ? 'ok' : 'bad');
+    if(!okB) allOk = false;
+  });
+  document.getElementById('qExtra').innerHTML = '';
+  recordResult(q, allOk, ms, vals);
+  showFeedback(q, allOk, ms, vals);
+  afterJudgeUI();
+}
+function essaySubmit(){
+  if(answered) return;
+  var q = current();
+  var inp = document.getElementById('essayIn');
+  var v = inp.value;
+  inp.disabled = true; inp.blur();
+  var btn = document.getElementById('btnEssaySubmit');
+  if(btn) btn.disabled = true;
+  var ms = Date.now() - qStart;
+  if(timerId){ clearInterval(timerId); timerId = null; }
+  document.getElementById('qExtra').innerHTML = '';
+  document.getElementById('qFeed').innerHTML =
+    '<div class="reveal-card"><h3>你的答案</h3><p>' + esc(v || '（未作答）') + '</p>' +
+    '<h3 style="margin-top:14px">参考答案</h3><p>' + esc(q.ansText || '') + '</p>' +
+    '<div class="fb-meta" style="margin-top:10px">本题用时 ' + (ms / 1000).toFixed(1) + ' 秒 · 请对照后自评</div></div>' +
+    '<div class="selfrate">' +
+      '<button class="btn btn-bad" id="rateBad">没答上</button>' +
+      '<button class="btn btn-ok" id="rateOk">答上了</button>' +
+    '</div>';
+  document.getElementById('rateOk').onclick = function(){ selfRate(true, ms); };
+  document.getElementById('rateBad').onclick = function(){ selfRate(false, ms); };
+}
+function showFeedback(q, ok, ms, pick){
+  var right = ansTextOf(q);
+  var html = '<div class="feedback ' + (ok ? 'good' : 'bad') + '">' +
+    '<div class="fb-head"><span class="dot">' + (ok ? '✓' : '✕') + '</span>' + (ok ? '回答正确' : '回答错误') + '</div>';
+  if((q.type === 'fill' || q.type === 'essay') && pick && pick.length){
+    html += '<div class="fb-line" style="color:var(--ink2)"><b>你的答案：</b>' + esc(pick.join('；')) + '</div>';
+  }
+  if(!ok || q.type === 'multi' || q.type === 'fill' || q.type === 'essay'){
+    html += '<div class="fb-line"><b>正确答案：</b>' + esc(right) + '</div>';
+  }
+  if(q.exp) html += '<div class="fb-line" style="color:var(--ink2)"><b>解析：</b>' + esc(q.exp) + '</div>';
+  html += '<div class="fb-meta"><span>本题用时 ' + (ms / 1000).toFixed(1) + ' 秒</span><span>已练 ' + state.stats.answered +
+          ' 题 · 正确率 ' + Math.round(state.stats.correct / state.stats.answered * 100) + '%</span></div>';
+  html += '</div>';
+  document.getElementById('qFeed').innerHTML = html;
+  setTimeout(function(){
+    var f = document.querySelector('.feedback');
+    if(f) f.scrollIntoView({block:'nearest', behavior:'smooth'});
+  }, 60);
+}
+
+function revealSelf(q){
+  if(answered) return;
+  var ms = Date.now() - qStart;
+  if(timerId){ clearInterval(timerId); timerId = null; }
+  document.getElementById('qExtra').innerHTML = '';
+  document.getElementById('qFeed').innerHTML =
+    '<div class="reveal-card"><h3>参考答案</h3><p>' + esc(q.ansText || '') + '</p>' +
+    '<div class="fb-meta" style="margin-top:10px">本题用时 ' + (ms / 1000).toFixed(1) + ' 秒</div></div>' +
+    '<div class="selfrate">' +
+      '<button class="btn btn-bad" id="rateBad">没记住</button>' +
+      '<button class="btn btn-ok" id="rateOk">记住了</button>' +
+    '</div>';
+  document.getElementById('rateOk').onclick = function(){ selfRate(true, ms); };
+  document.getElementById('rateBad').onclick = function(){ selfRate(false, ms); };
+}
+
+function selfRate(ok, ms){
+  if(answered) return;
+  answered = true;
+  var q = current();
+  session.answers[q.id] = {pick:[], ok:ok, ms:ms};
+  state.stats.answered++;
+  if(ok) state.stats.correct++;
+  var st = S(session.scope);
+  st.pool = st.pool.filter(function(id){ return id !== q.id; });
+  if(ok){ st.wrong = st.wrong.filter(function(id){ return id !== q.id; }); }
+  else{
+    if(st.wrong.indexOf(q.id) < 0) st.wrong.push(q.id);
+    if(!session.rein[q.id]){ session.rein[q.id] = 1; session.ids.push(q.id); }
+  }
+  document.getElementById('qFeed').insertAdjacentHTML('afterbegin',
+    '<div class="feedback ' + (ok ? 'good' : 'bad') + '" style="margin-bottom:12px">' +
+    '<div class="fb-head"><span class="dot">' + (ok ? '✓' : '✕') + '</span>' + (ok ? '已掌握' : '这道题会再出现一次') + '</div>' +
+    '<div class="fb-meta"><span>本题用时 ' + (ms / 1000).toFixed(1) + ' 秒</span></div></div>');
+  document.querySelectorAll('.selfrate button').forEach(function(b){ b.disabled = true; });
+  document.getElementById('qFooter').style.display = 'block';
+  document.getElementById('btnNext').textContent = (session.i + 1 >= session.ids.length) ? '查看结果' : '下一题';
+  save();
+}
+
+function nextQ(){
+  if(session.i + 1 >= session.ids.length){ finish(); return; }
+  session.i++;
+  save();
+  renderQ();
+}
+
+/* ---------- 结算 ---------- */
+function finish(){
+  if(timerId){ clearInterval(timerId); timerId = null; }
+  var ids = Object.keys(session.answers);
+  var right = 0, wrongItems = [], ms = 0;
+  ids.forEach(function(id){
+    var a = session.answers[id];
+    ms += a.ms;
+    if(a.ok) right++; else if(wrongItems.indexOf(id) < 0) wrongItems.push(id);
+  });
+  var total = ids.length || 1;
+  var rate = Math.round(right / total * 100);
+  document.getElementById('resRate').textContent = rate + '%';
+  document.getElementById('resRight').textContent = right;
+  document.getElementById('resWrong').textContent = wrongItems.length;
+  document.getElementById('resTime').textContent = fmt(ms);
+  document.getElementById('ring').style.background =
+    'conic-gradient(var(--brand) ' + (rate * 3.6) + 'deg, #dfeee4 ' + (rate * 3.6) + 'deg)';
+  var list = document.getElementById('resWrongList');
+  if(!wrongItems.length){
+    list.innerHTML = '<div class="empty">本组全对，非常稳 👍</div>';
+  }else{
+    list.innerHTML = wrongItems.map(function(id){
+      var q = BY_ID[id];
+      return '<div class="wq"><p>' + stemHTML(q.stem) + '</p><div class="ans">正确答案：' + esc(ansTextOf(q)) + '</div></div>';
+    }).join('');
+  }
+  state.session = null;
+  save();
+  show('s-result');
+  try{ window.scrollTo({top:0, behavior:'auto'}); }catch(_e){ window.scrollTo(0, 0); }
+}
+
+/* ---------- 首页 ---------- */
+function renderHome(){
+  var st = S(scope);
+  var all = idsFor(scope);
+  var done = all.length - st.pool.length;
+  document.getElementById('doneNum').textContent = Math.max(0, done);
+  document.getElementById('totalNum').textContent = all.length;
+  document.getElementById('scopeLabel').textContent =
+    (scope === 'all' ? '全部题库' : SRC_NAME[scope] + '题库') + '覆盖进度';
+  document.getElementById('progBar').style.width = Math.min(100, Math.max(0, done / all.length * 100)) + '%';
+  document.getElementById('wrongNum').textContent = st.wrong.length;
+  document.getElementById('statAnswered').textContent = state.stats.answered;
+  document.getElementById('statRate').textContent = state.stats.answered ?
+    Math.round(state.stats.correct / state.stats.answered * 100) + '%' : '—';
+  document.getElementById('statCycle').textContent = st.cycle;
+  document.getElementById('btnWrong').style.display = st.wrong.length ? 'flex' : 'none';
+  document.getElementById('btnWrong').textContent = '错题重练（' + st.wrong.length + '）';
+  var canResume = state.session && state.session.i < state.session.ids.length;
+  document.getElementById('btnResume').style.display = canResume ? 'flex' : 'none';
+  if(canResume) document.getElementById('btnResume').textContent = '继续上次（第 ' + (state.session.i + 1) + ' 题）';
+}
+
+/* ---------- 错题本 ---------- */
+function renderBook(){
+  var st = S(scope);
+  var list = st.wrong.filter(function(id){ return BY_ID[id]; });
+  document.getElementById('bookCount').textContent = '共 ' + list.length + ' 题 · ' + (scope === 'all' ? '全部' : SRC_NAME[scope]);
+  var box = document.getElementById('bookList');
+  if(!list.length){
+    box.innerHTML = '<div class="empty">错题本是空的，继续保持</div>';
+    document.getElementById('btnBookPractice').style.display = 'none';
+    return;
+  }
+  document.getElementById('btnBookPractice').style.display = 'flex';
+  box.innerHTML = list.map(function(id){
+    var q = BY_ID[id];
+    return '<div class="wb-item"><div class="q">' + stemHTML(q.stem) + '</div>' +
+      '<div class="a">正确答案：' + esc(ansTextOf(q)) + '</div>' +
+      '<div class="t">' + TYPE_NAME[q.type] + ' · ' + SRC_NAME[q.src] + '题库</div></div>';
+  }).join('');
+}
+
+/* ---------- 通用 ---------- */
+function show(id){
+  Array.prototype.forEach.call(document.querySelectorAll('.screen'), function(s){ s.classList.remove('on'); });
+  document.getElementById(id).classList.add('on');
+  if(id === 's-quiz') return;
+  document.getElementById('qFooter').style.display = 'none';
+  if(id === 's-home') renderHome();
+  if(id === 's-book') renderBook();
+}
+function toast(msg){
+  var m = document.getElementById('mask');
+  document.getElementById('shTitle').textContent = '提示';
+  document.getElementById('shText').textContent = msg;
+  document.getElementById('shNo').style.display = 'none';
+  document.getElementById('shYes').textContent = '好';
+  m.classList.add('on');
+  document.getElementById('shYes').onclick = function(){ m.classList.remove('on'); document.getElementById('shNo').style.display = 'flex'; };
+}
+
+/* ---------- 事件 ---------- */
+document.getElementById('scopeSeg').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  scope = b.dataset.scope;
+  Array.prototype.forEach.call(this.children, function(x){ x.classList.toggle('on', x === b); });
+  renderHome();
+});
+document.getElementById('countSeg').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  countN = parseInt(b.dataset.n, 10);
+  Array.prototype.forEach.call(this.children, function(x){ x.classList.toggle('on', x === b); });
+});
+document.getElementById('btnStart').onclick = function(){ startSession(scope, countN, false); };
+document.getElementById('btnWrong').onclick = function(){ startSession(scope, Math.min(50, Math.max(1, S(scope).wrong.length)), true); };
+document.getElementById('btnBook').onclick = function(){ show('s-book'); };
+document.getElementById('btnBookBack').onclick = function(){ show('s-home'); };
+document.getElementById('btnBookStart').onclick = function(){ startSession(scope, Math.min(50, Math.max(1, S(scope).wrong.length)), true); };
+document.getElementById('btnBookPractice').onclick = function(){ startSession(scope, Math.min(50, Math.max(1, S(scope).wrong.length)), true); };
+document.getElementById('btnResume').onclick = function(){
+  session = state.session;
+  if(!session){ renderHome(); return; }
+  show('s-quiz');
+  renderQ();
+};
+document.getElementById('btnNext').onclick = nextQ;
+document.getElementById('btnQuit').onclick = function(){
+  save();
+  show('s-home');
+};
+document.getElementById('btnAgain').onclick = function(){ startSession(scope, countN, false); };
+document.getElementById('btnHome').onclick = function(){ show('s-home'); };
+document.getElementById('btnReset').onclick = function(){
+  var m = document.getElementById('mask');
+  document.getElementById('shTitle').textContent = '重置练习进度？';
+  document.getElementById('shText').textContent = '清空覆盖进度、错题本和累计统计，题库本身不受影响。此操作不可撤销。';
+  document.getElementById('shNo').style.display = 'flex';
+  document.getElementById('shYes').textContent = '确定重置';
+  m.classList.add('on');
+  document.getElementById('shNo').onclick = function(){ m.classList.remove('on'); };
+  document.getElementById('shYes').onclick = function(){
+    state = {v:1, scopes:{}, stats:{answered:0, correct:0}, session:null};
+    save(); m.classList.remove('on'); show('s-home');
+  };
+};
+document.getElementById('mask').addEventListener('click', function(e){
+  if(e.target === this) this.classList.remove('on');
+});
+
+/* ---------- 启动 ---------- */
+state = load();
+document.getElementById('totalNum').textContent = idsFor('all').length;
+try{
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  var isPhone = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+  if(!standalone && isPhone && localStorage.getItem(KEY + ':hintClosed') !== '1'){
+    document.getElementById('installHint').style.display = '';
+    document.getElementById('hintClose').onclick = function(){
+      document.getElementById('installHint').style.display = 'none';
+      localStorage.setItem(KEY + ':hintClosed', '1');
+    };
+  }
+}catch(e){}
+renderHome();
+})();
+</script>
+</body>
+</html>
